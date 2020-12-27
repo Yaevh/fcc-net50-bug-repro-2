@@ -1,0 +1,16 @@
+﻿@model Szlem.Recruitment.Enrollments.GetEnrollmentDetails.CandidateWasAbsentFromTrainingEventData
+@using Szlem.AspNetCore.Views
+
+<div class="card border-danger">
+    <div class="card-header alert-danger"><i class="fas fa-chalkboard-teacher"></i> Kandydat nie wziął udziału w potwierdzonym szkoleniu</div>
+    <div class="card-body">
+        <h6 class="card-subtitle mb-2 text-muted">@Html.DisplayFor(model => model.DateTime.LocalDateTime)</h6>
+        <div class="card-text">
+            <dl class="row">
+                @Html.DlFullRowOrEmptyValue(model => model.RecordingUser, "brak")
+                @Html.DlFullRowOrEmptyValue(model => model.Training, "brak")
+                @Html.DlFullRowOrEmptyValue(model => model.AdditionalNotes, "brak")
+            </dl>
+        </div>
+    </div>
+</div>

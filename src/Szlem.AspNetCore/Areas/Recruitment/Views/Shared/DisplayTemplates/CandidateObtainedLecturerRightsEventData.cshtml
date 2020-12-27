@@ -1,0 +1,15 @@
+﻿@model Szlem.Recruitment.Enrollments.GetEnrollmentDetails.CandidateObtainedLecturerRightsEventData
+@using Szlem.AspNetCore.Views
+
+<div class="card border-success">
+    <div class="card-header alert-success"><i class="fas fa-chalkboard-teacher"></i> Kandydat otrzymał uprawnienia prowadzącego</div>
+    <div class="card-body">
+        <h6 class="card-subtitle mb-2 text-muted">@Html.DisplayFor(model => model.DateTime.LocalDateTime)</h6>
+        <div class="card-text">
+            <dl class="row">
+                @Html.DlFullRowOrEmptyValue(model => model.RecordingUser, "brak")
+                @Html.DlFullRowOrEmptyValue(model => model.AdditionalNotes, "brak")
+            </dl>
+        </div>
+    </div>
+</div>

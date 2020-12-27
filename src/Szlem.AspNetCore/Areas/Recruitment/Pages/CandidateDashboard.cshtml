@@ -1,0 +1,147 @@
+﻿@page
+@model Szlem.AspNetCore.Areas.Recruitment.Pages.CandidateDashboardModel
+@{
+    ViewData["Title"] = "Panel kandydata";
+}
+
+<h1>Panel kandydata</h1>
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+@if (Model.EnrollmentDetails.SelectedTraining != null)
+{
+    <div class="alert alert-warning">
+        Pamiętaj o szkoleniu dla prowadzących: @Html.DisplayFor(m => m.EnrollmentDetails.SelectedTraining)
+    </div>
+}
+
+<div>
+
+    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#showRecruitmentSubmissionModal">Pokaż moją ankietę rekrutacyjną</button>
+
+    <div class="modal fade" id="showRecruitmentSubmissionModal" tabindex="-1" role="dialog" aria-labelledby="showRecruitmentSubmissionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="showRecruitmentSubmissionModalLabel">Ankieta rekrutacyjna</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <dl class="dl-horizontal">
+                        <dt>
+                            @Html.DisplayNameFor(model => model.EnrollmentDetails.SubmissionDateTime)
+                        </dt>
+                        <dd>
+                            @Html.DisplayFor(model => model.EnrollmentDetails.SubmissionDateTime)
+                        </dd>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.EnrollmentDetails.FullName)
+                        </dt>
+                        <dd>
+                            @Html.DisplayFor(model => model.EnrollmentDetails.FullName)
+                        </dd>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.EnrollmentDetails.Email)
+                        </dt>
+                        <dd>
+                            @Html.DisplayFor(model => model.EnrollmentDetails.Email)
+                        </dd>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.EnrollmentDetails.PhoneNumber)
+                        </dt>
+                        <dd>
+                            @Html.DisplayFor(model => model.EnrollmentDetails.PhoneNumber)
+                        </dd>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.EnrollmentDetails.PreferredLecturingCities)
+                        </dt>
+                        <dd>
+                            <ul>
+                                @foreach (var city in Model.EnrollmentDetails.PreferredLecturingCities)
+                                {
+                                    <li>@city</li>
+                                }
+                            </ul>
+                        </dd>
+
+                        <dt>@Html.DisplayNameFor(model => model.EnrollmentDetails.PreferredTrainings)</dt>
+                        <dd>
+                            <ul>
+                                @foreach (var training in Model.EnrollmentDetails.PreferredTrainings)
+                                {
+                                    <li>
+                                        @Html.DisplayFor(m => training)
+                                    </li>
+                                }
+                            </ul>
+                        </dd>
+                        <dt>
+                            @Html.DisplayNameFor(model => model.EnrollmentDetails.PhoneNumber)
+                        </dt>
+                        <dd>
+                            @Html.DisplayFor(model => model.EnrollmentDetails.PhoneNumber)
+                        </dd>
+                    </dl>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Zamknij</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.EnrollmentDetails.CanResign)
+    {
+        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#registerResignationModal">Chcę zrezygnować z udziału w projekcie</button>
+
+        <div class="modal fade" id="registerResignationModal" tabindex="-1" role="dialog" aria-labelledby="registerResignationModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <form asp-page-handler="ResignFromProject">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="registerResignationModalLabel">Rezygnacja z udziału w projekcie</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" asp-for="ResignCommand.EnrollmentId" value="@Model.EnrollmentDetails.ID" />
+
+                            <label asp-for="ResignCommand.ResignationType" class="control-label">Czy Twoja rezygnacja jest trwała, czy tymczasowa?</label><br />
+                            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                <div class="btn btn-outline-danger">
+                                    <input asp-for="ResignCommand.ResignationType" class="form-check-input" type="radio" id="@Html.IdFor(m => m.ResignCommand.ResignationType)true" value="@Szlem.Recruitment.Enrollments.RecordResignation.ResignationType.Permanent"/>
+                                    <label class="form-check-label" for="@Html.IdFor(m => m.ResignCommand.ResignationType)true">chcę trwale zrezygnować z uczestnictwa w projekcie</label>
+                                </div>
+                                <div class="btn btn-outline-success">
+                                    <input asp-for="ResignCommand.ResignationType" class="form-check-input" type="radio" id="@Html.IdFor(m => m.ResignCommand.ResignationType)false" value="@Szlem.Recruitment.Enrollments.RecordResignation.ResignationType.Temporary"/>
+                                    <label class="form-check-label" for="@Html.IdFor(m => m.ResignCommand.ResignationType)false">w tej chwili nie mogę uczestniczyć w projekcie, ale w przyszłości chciałbym do niego wrócić</label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="ResignCommand.ResumeDate" class="control-label">Jeśli rezygnujesz tymczasowo, to wpisz tu datę, od której mógłbyś powrócić do projektu (pole opcjonalne)</label><br />
+                                <span asp-validation-for="ResignCommand.ResumeDate" class="text-danger"></span>
+                                <input asp-for="ResignCommand.ResumeDate" type="date" class="form-control" />
+                            </div>
+
+                            <label asp-for="ResignCommand.ResignationReason" class="control-label">Dlaczego rezygnujesz z uczestnictwa w projekcie? (pole opcjonalne)</label>
+                            <span asp-validation-for="ResignCommand.ResignationReason" class="text-danger"></span>
+                            <textarea asp-for="ResignCommand.ResignationReason" class="form-control"></textarea>
+
+                            <label asp-for="ResignCommand.AdditionalNotes" class="control-label">Jeśli masz uwagi lub komentarze, to wpisz je tutaj:</label>
+                            <span asp-validation-for="ResignCommand.AdditionalNotes" class="text-danger"></span>
+                            <textarea asp-for="ResignCommand.AdditionalNotes" class="form-control"></textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <input type="submit" class="btn btn-danger" value="Zrezygnuj" />
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Anuluj</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+</div>

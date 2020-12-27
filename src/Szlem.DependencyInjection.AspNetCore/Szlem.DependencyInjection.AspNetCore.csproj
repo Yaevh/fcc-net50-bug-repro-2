@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Engine\Szlem.Engine\Szlem.Engine.csproj" />
+    <ProjectReference Include="..\Engine\Szlem.Recruitment\Szlem.Recruitment.csproj" />
+    <ProjectReference Include="..\Szlem.Persistence.EF\Szlem.Persistence.EF.csproj" />
+    <ProjectReference Include="..\Szlem.Persistence.NHibernate\Szlem.Persistence.NHibernate.csproj" />
+  </ItemGroup>
+
+</Project>

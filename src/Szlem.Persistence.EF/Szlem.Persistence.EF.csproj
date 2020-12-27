@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Extensions.Hosting.AsyncInitialization" Version="1.0.0" />
+    <PackageReference Include="MediatR" Version="9.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.1" />
+    <PackageReference Include="Scrutor" Version="3.3.0" />
+    <PackageReference Include="X.PagedList" Version="8.0.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Engine\MockDataGenerator\MockDataGenerator.csproj" />
+    <ProjectReference Include="..\Engine\Szlem.Engine\Szlem.Engine.csproj" />
+    <ProjectReference Include="..\Engine\Szlem.Recruitment\Szlem.Recruitment.csproj" />
+    <ProjectReference Include="..\Engine\Szlem.Models\Szlem.Models.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Stakeholders\LecturerCandidate\" />
+    <Folder Include="Stakeholders\Lecturer\" />
+    <Folder Include="Stakeholders\OperationalCoordinator\" />
+  </ItemGroup>
+
+</Project>

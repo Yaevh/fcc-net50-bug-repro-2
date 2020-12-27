@@ -1,0 +1,103 @@
+﻿@page "{id}"
+@model DetailsModel
+
+@{
+    ViewData["Title"] = Model.Edition.Name;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.1.2/css/tempusdominus-bootstrap-4.min.css" integrity="sha256-XPTBwC3SBoWHSmKasAk01c08M6sIA5gF5+sRxqak2Qs=" crossorigin="anonymous" />
+}
+
+@section Scripts {
+    @if (Model.Edition.CanAddRecruitmentCampaign)
+    {
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js" integrity="sha256-4iQZ6BVL4qNKlQ27TExEhBN1HFPvAvAMbFavKKosSWQ=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/locale/pl.js" integrity="sha256-prSi7A1V9ZxDIIGoYopovpFgGHQodz6JVZu5Aad7o8s=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.1.2/js/tempusdominus-bootstrap-4.min.js" integrity="sha256-z0oKYg6xiLq3yJGsp/LsY9XykbweQlHl42jHv2XTBz4=" crossorigin="anonymous"></script>
+        <script type="text/javascript">
+            $.fn.datetimepicker.Constructor.Default = $.extend({}, $.fn.datetimepicker.Constructor.Default, {
+                locale: "pl",
+                icons: {
+                    time: 'fas fa-clock',
+                    date: 'fa fa-calendar',
+                    up: 'fa fa-arrow-up',
+                    down: 'fa fa-arrow-down',
+                    previous: 'fa fa-chevron-left',
+                    next: 'fa fa-chevron-right',
+                    today: 'fa fa-calendar-check-o',
+                    clear: 'fa fa-delete',
+                    close: 'fa fa-times'
+                }
+            });
+        </script>
+    }
+}
+
+<h2>@Model.Edition.Name</h2>
+<h4>@Html.DisplayFor(model => model.Edition.StartDate) - @Html.DisplayFor(model => model.Edition.EndDate)</h4>
+<hr />
+
+<h2>Kampanie rekrutacyjne</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Edition.RecruitmentCampaigns[0].Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Edition.RecruitmentCampaigns[0].StartDateTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Edition.RecruitmentCampaigns[0].EndDateTime)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Edition.RecruitmentCampaigns)
+        {
+            <tr>
+                <td>
+                    <a asp-area="@Areas.Recruitment.Consts.AreaName" asp-page="@Areas.Recruitment.Pages.DetailsModel.Route" asp-route-id="@item.ID">
+                        @(item.Name ?? "<bez nazwy>")
+                    </a>
+                </td>
+                <td>
+                    <a asp-area="@Areas.Recruitment.Consts.AreaName" asp-page="@Areas.Recruitment.Pages.DetailsModel.Route" asp-route-id="@item.ID">
+                        @Html.DisplayFor(model => item.StartDateTime.Date)
+                    </a>
+                </td>
+                <td>
+                    <a asp-area="@Areas.Recruitment.Consts.AreaName" asp-page="@Areas.Recruitment.Pages.DetailsModel.Route" asp-route-id="@item.ID">
+                        @Html.DisplayFor(model => item.EndDateTime.Date)
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (Model.Edition.CanAddRecruitmentCampaign)
+{
+    <h2>Zaplanuj kampanię rekrutacyjną</h2>
+    <div class="row">
+        <div class="col-md-4">
+            <form method="post" asp-page-handler="CreateRecruitmentCampaign">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <input asp-for="CreateRecruitmentCampaignCommand.EditionID" value="@Model.Edition.ID" type="hidden" />
+                <div class="form-group">
+                    <label asp-for="CreateRecruitmentCampaignCommand.Name" class="control-label"></label>
+                    <input asp-for="CreateRecruitmentCampaignCommand.Name" class="form-control" />
+                    <span asp-validation-for="CreateRecruitmentCampaignCommand.Name" class="text-danger"></span>
+                </div>
+                @Html.EditorFor(model => model.CreateRecruitmentCampaignCommand.StartDateTime)
+                @Html.EditorFor(model => model.CreateRecruitmentCampaignCommand.EndDateTime)
+
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+    </div>
+}

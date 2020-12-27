@@ -1,0 +1,228 @@
+﻿@page "{trainingId}"
+@using Szlem.Recruitment.Trainings
+@model Szlem.AspNetCore.Areas.Recruitment.Pages.Trainings.DetailsModel
+@{
+    ViewData["Title"] = $"Szkolenie";
+}
+
+@functions {
+    private async Task RenderCandidates(IEnumerable<Details.CandidateSummary> candidates)
+    {
+        if (candidates.Any())
+        {
+            <table class="table table-bordered table-sm">
+                <thead>
+                    <tr>
+                        <th>@Html.DisplayNameFor(model => candidates.First().FullName)</th>
+                        <th>@Html.DisplayNameFor(model => candidates.First().Email)</th>
+                        <th>@Html.DisplayNameFor(model => candidates.First().Phone)</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var candidate in candidates)
+                    {
+                        switch (candidate)
+                        {
+                            case Details.PastTrainingParticipant c:
+                                await RenderPastCandidate(c); break;
+                            case Details.CurrentTrainingParticipant c:
+                                await RenderCurrentCandidate(c); break;
+                            case Details.FutureTrainingParticipant c:
+                                await RenderFutureCandidate(c); break;
+                        }
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <span class="text-info">brak</span>
+        }
+    }
+
+    private async Task RenderPastCandidate(Details.PastTrainingParticipant candidate)
+    {
+        <tr class="@GetTableClass(candidate)">
+            <td><a asp-page="@Enrollments.DetailsModel.Route" asp-route-enrollmentId="@candidate.Id">@Html.DisplayFor(modelItem => candidate.FullName)</a></td>
+            <td>@Html.DisplayFor(modelItem => candidate.Email)</td>
+            <td>@Html.DisplayFor(modelItem => candidate.Phone)</td>
+            <td>
+                @if (candidate.HasResignedPermanently)
+                { <button class="btn btn-secondary disabled" disabled="disabled">Zrezygnował</button> }
+                else if (candidate.HasResignedTemporarily)
+                { <button class="btn btn-secondary disabled" disabled="disabled"><span title="@candidate.ResignationEndDate">Zrezygnował do @Html.DisplayFor(model => candidate.ResignationEndDate)</span></button> }
+                else if (candidate.HasRefusedTraining)
+                { <button class="btn btn-secondary disabled" disabled="disabled"><span title="@candidate.RefusalReason">Odmówił udziału <i class="fas fa-info-circle"></i></span></button>}
+                else if (candidate.WasAbsent)
+                { <button class="btn btn-secondary disabled" disabled="disabled"><span>Był nieobecny</span></button> }
+                else if (candidate.WasPresentButDidNotAcceptedAsLecturer)
+                { <button class="btn btn-secondary disabled" disabled="disabled"><span>Uczestniczył, nie zdobył uprawnień</span></button> }
+                else if (candidate.WasPresentAndAcceptedAsLecturer)
+                { <button class="btn btn-success disabled" disabled="disabled"><span>Uczestniczył, zdobył uprawnienia</span></button> }
+                else if (candidate.CanRecordTrainingResults)
+                { <a asp-page="@Enrollments.DetailsModel.Route" asp-route-enrollmentId="@candidate.Id" class="btn btn-primary"><span>Zarejestruj obecność/nieobecność</span></a> }
+                else if (candidate.CanRecordTrainingResultsConditionally)
+                {
+                    if (candidate.ChoseAnotherTraining)
+                    { <a asp-page="@Enrollments.DetailsModel.Route" asp-route-enrollmentId="@candidate.Id" class="btn btn-secondary"><span>Zarejestruj obecność (wybrał inne szkolenie)</span></a> }
+                    else if (candidate.IsInvited == false)
+                    { <a asp-page="@Enrollments.DetailsModel.Route" asp-route-enrollmentId="@candidate.Id" class="btn btn-secondary"><span>Zarejestruj obecność (nie został zaproszony)</span></a> }
+                }
+            </td>
+        </tr>
+    }
+
+    private string GetTableClass(Details.PastTrainingParticipant candidate)
+    {
+        if (candidate.HasResignedPermanently || candidate.HasResignedTemporarily)
+            return "table-danger";
+        if (candidate.HasLecturerRights)
+            return "table-success";
+        if (candidate.WasPresentButDidNotAcceptedAsLecturer)
+            return "table-secondary";
+        if (candidate.WasAbsent)
+            return "table-warning";
+        return string.Empty;
+    }
+
+    private async Task RenderCurrentCandidate(Details.CurrentTrainingParticipant candidate)
+    {
+        <tr class="@GetTableClass(candidate)">
+            <td><a asp-page="@Enrollments.DetailsModel.Route" asp-route-enrollmentId="@candidate.Id">@Html.DisplayFor(modelItem => candidate.FullName)</a></td>
+            <td>@Html.DisplayFor(modelItem => candidate.Email)</td>
+            <td>@Html.DisplayFor(modelItem => candidate.Phone)</td>
+            <td>
+                @if (candidate.HasResignedPermanently)
+                { <button class="btn btn-secondary disabled" disabled="disabled">Zrezygnował</button> }
+                else if (candidate.HasResignedTemporarily)
+                { <button class="btn btn-secondary disabled" disabled="disabled"><span title="@candidate.ResignationEndDate">Zrezygnował do @Html.DisplayFor(model => candidate.ResignationEndDate)</span></button> }
+                else if (candidate.HasRefusedTraining)
+                { <button class="btn btn-secondary disabled" disabled="disabled"><span title="@candidate.RefusalReason">Odmówił udziału <i class="fas fa-info-circle"></i></span></button> }
+                else if (candidate.ChoseAnotherTraining)
+                { <button class="btn btn-secondary disabled" disabled="disabled"><span title="">Wybrał inne szkolenie</span></button> }
+                else
+                { <a asp-page="@Enrollments.DetailsModel.Route" asp-route-enrollmentId="@candidate.Id" class="btn btn-primary disabled" disabled="disabled"><span>Uczestniczy w szkoleniu</span></a> }
+            </td>
+        </tr>
+    }
+
+    private string GetTableClass(Details.CurrentTrainingParticipant candidate)
+    {
+        if (candidate.HasResignedPermanently || candidate.HasResignedTemporarily)
+            return "table-danger";
+        if (candidate.HasLecturerRights)
+            return "table-success";
+        if (candidate.ChoseAnotherTraining)
+            return "table-secondary";
+        return string.Empty;
+    }
+
+    private async Task RenderFutureCandidate(Details.FutureTrainingParticipant candidate)
+    {
+        <tr class="@GetTableClass(candidate)">
+            <td><a asp-page="@Enrollments.DetailsModel.Route" asp-route-enrollmentId="@candidate.Id">@Html.DisplayFor(modelItem => candidate.FullName)</a></td>
+            <td>@Html.DisplayFor(modelItem => candidate.Email)</td>
+            <td>@Html.DisplayFor(modelItem => candidate.Phone)</td>
+            <td>
+                @if (candidate.HasResignedPermanently)
+                {<button class="btn btn-secondary disabled" disabled="disabled">Zrezygnował</button> }
+                else if (candidate.HasResignedTemporarily)
+                { <button class="btn btn-secondary disabled" disabled="disabled"><span title="@candidate.ResignationEndDate">Zrezygnował do @Html.DisplayFor(model => candidate.ResignationEndDate)</span></button> }
+                else if (candidate.HasRefusedTraining)
+                { <button class="btn btn-secondary disabled" disabled="disabled"><span title="@candidate.RefusalReason">Odmówił udziału <i class="fas fa-info-circle"></i></span></button> }
+                else if (candidate.ChoseAnotherTraining)
+                { <button class="btn btn-secondary disabled" disabled="disabled"><span>Wybrał inne szkolenie</span></button> }
+                else if (candidate.HasAccepted)
+                { <button class="btn btn-secondary disabled" disabled="disabled"><span>Zaproszony</span></button> }
+                else if (candidate.CanBeInvited)
+                { <a asp-page="@Enrollments.DetailsModel.Route" asp-route-enrollmentId="@candidate.Id" class="btn btn-primary"><span>Zaproś</span></a> }
+            </td>
+        </tr>
+    }
+
+    private string GetTableClass(Details.FutureTrainingParticipant candidate)
+    {
+        if (candidate.HasResignedPermanently || candidate.HasResignedTemporarily)
+            return "table-danger";
+        if (candidate.HasLecturerRights)
+            return "table-success";
+        if (candidate.ChoseAnotherTraining)
+            return "table-secondary";
+        if (candidate.HasAccepted)
+            return "table-success";
+        return string.Empty;
+    }
+}
+
+<h4>Szkolenie</h4>
+<h5>@Model.Training.Address, @Model.Training.City</h5>
+<h5>@Html.DisplayFor(model => model.Training.Start.Date), @Html.DisplayFor(model => model.Training.Start.TimeOfDay)-@Html.DisplayFor(model => model.Training.End.TimeOfDay)</h5>
+<h6>Czas szkolenia: @Model.Training.Duration.ToString("H':'mm", null)</h6>
+<h6>prowadzący: @Model.Training.CoordinatorName</h6>
+<hr />
+
+<div>
+    @foreach (var note in Model.Training.Notes)
+    {
+        <div class="card border-info">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2 text-muted">@note.AuthorName</h6>
+                <h6 class="card-subtitle mb-2 text-muted">@Html.DisplayFor(model => note.Timestamp.LocalDateTime)</h6>
+                <div class="card-text">
+                    @note.Content
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<hr />
+
+<h4>Kandydaci</h4>
+<div class="container">
+    <div class="row">
+        <div class="col-sm alert alert-danger">
+            Kandydat zrezygnował
+        </div>
+        <div class="col-sm alert alert-success">
+            Kandydat zdobył uprawnienia prowadzącego
+        </div>
+        @if (Model.Training.Timing == TrainingTiming.Past)
+        {
+            <div class="col-sm alert alert-secondary">
+                Kandydat uczestniczył, ale nie zdobył uprawnień
+            </div>
+            <div class="col-sm alert alert-warning">
+                Kandydat był nieobecny
+            </div>
+        }
+        @if (Model.Training.Timing == TrainingTiming.Current)
+        {
+            <div class="col-sm alert alert-secondary">
+                Kandydat wybrał inne szkolenie
+            </div>
+        }
+        @if (Model.Training.Timing == TrainingTiming.Future)
+        {
+            <div class="col-sm alert alert-secondary">
+                Kandydat wybrał inne szkolenie
+            </div>
+        }
+    </div>
+</div>
+<hr/>
+@{ await RenderCandidates(Model.Training.AllCandidates); }
+
+<hr />
+
+<form asp-page-handler="AddNote">
+    <h3>Dodaj notatkę</h3>
+    <input type="hidden" asp-for="AddNoteCommand.TrainingId" value="@Model.Training.Id" />
+
+    <label asp-for="AddNoteCommand.Content" class="control-label"></label>
+    <span asp-validation-for="AddNoteCommand.Content" class="text-danger"></span>
+    <textarea asp-for="AddNoteCommand.Content" class="form-control"></textarea>
+
+    <input type="submit" class="btn btn-primary" value="Save" />
+</form>

@@ -1,0 +1,258 @@
+﻿@page
+@model IndexModel
+@using Szlem.AspNetCore;
+@using X.PagedList.Mvc.Core;
+@{
+    ViewData["Title"] = $"Zgłoszenia";
+}
+
+<div class="card border border-info">
+    <div class="card-header" id="searchExpanderHeading">
+        <h5 class="mb-0">
+            <button class="btn btn-link" data-toggle="collapse" data-target="#searchExpander" aria-expanded="true" aria-controls="searchExpander">
+                Wyszukiwanie <i class="fa fa-angle-down rotate-icon"></i>
+            </button>
+        </h5>
+    </div>
+
+    <div id="searchExpander" class="collapse" aria-labelledby="searchExpanderHeading">
+        <div class="card-body">
+            <form method="get">
+                <input type="hidden" name="@nameof(Model.Query.PageNo)" value="0" />
+                <div class="form-row">
+                    <div class="form-group col-md-2">
+                        <label asp-for="Query.PageSize" class="control-label"></label>
+                        <input asp-for="Query.PageSize" class="form-control" />
+                        <span asp-validation-for="Query.PageSize"></span>
+                    </div>
+                    <div class="form-group col-md-10">
+                        <label asp-for="Query.SearchPattern" class="control-label"></label>
+                        <input asp-for="Query.SearchPattern" value="@Model.Query.SearchPattern" class="form-control" />
+                        <span asp-validation-for="Query.SearchPattern"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label asp-for="Query.CampaignIds" class="control-label"></label>
+                        <select asp-for="Query.CampaignIds" class="form-control" multiple="multiple">
+                            @foreach (var campaign in Model.Campaigns)
+                            {
+                                <option value="@campaign.ID">
+                                    @(campaign.Name ?? "<brak>"), @campaign.StartDateTime.ToString("uuuu'-'MM'-'dd", null) - @campaign.EndDateTime.ToString("uuuu'-'MM'-'dd", null)
+                                </option>
+                            }
+                        </select>
+                        <span asp-validation-for="Query.CampaignIds"></span>
+                    </div>
+
+                    <div class="form-group col-md-8">
+                        <label asp-for="Query.PreferredTrainingIds" class="control-label"></label>
+                        <select asp-for="Query.PreferredTrainingIds" class="form-control" multiple="multiple">
+                            @foreach (var training in Model.Trainings)
+                            {
+                                <option value="@training.ID">
+                                    @Html.DisplayFor(m => training)
+                                </option>
+                            }
+                        </select>
+                        <span asp-validation-for="Query.PreferredTrainingIds"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Query.EnrollmentAge" class="control-label">Zgłoszenia z</label>
+                    <div class="form-check form-check-inline btn btn-outline-primary">
+                        <input asp-for="Query.EnrollmentAge" class="form-check-input" type="radio" id="@Html.IdFor(m => m.Query.EnrollmentAge)current" value="@Szlem.Recruitment.Enrollments.GetSubmissions.EnrollmentAge.LatestCampaign"/>
+                        <label class="form-check-label" for="@Html.IdFor(m => m.Query.EnrollmentAge)current">najnowszej rekrutacji</label>
+                    </div>
+                    <div class="form-check form-check-inline btn btn-outline-primary">
+                        <input asp-for="Query.EnrollmentAge" class="form-check-input" type="radio" id="@Html.IdFor(m => m.Query.EnrollmentAge)old" value="@Szlem.Recruitment.Enrollments.GetSubmissions.EnrollmentAge.OldCampaign"/>
+                        <label class="form-check-label" for="@Html.IdFor(m => m.Query.EnrollmentAge)old">starej rekrutacji</label>
+                    </div>
+                    <div class="form-check form-check-inline btn btn-outline-secondary">
+                        <input asp-for="Query.EnrollmentAge" class="form-check-input" type="radio" id="@Html.IdFor(m => m.Query.EnrollmentAge)null" value="@null"/>
+                        <label class="form-check-label" for="@Html.IdFor(m => m.Query.HasLecturerRights)null">bez znaczenia</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Query.HasLecturerRights" class="control-label">Posiada uprawnienia prowadzącego</label>
+                    <div class="form-check form-check-inline btn btn-outline-primary">
+                        <input asp-for="Query.HasLecturerRights" class="form-check-input" type="radio" id="@Html.IdFor(m => m.Query.HasLecturerRights)_true" value="@true"/>
+                        <label class="form-check-label" for="@Html.IdFor(m => m.Query.HasLecturerRights)_true">tak</label>
+                    </div>
+                    <div class="form-check form-check-inline btn btn-outline-primary">
+                        <input asp-for="Query.HasLecturerRights" class="form-check-input" type="radio" id="@Html.IdFor(m => m.Query.HasLecturerRights)_false" value="@false"/>
+                        <label class="form-check-label" for="@Html.IdFor(m => m.Query.HasLecturerRights)_false">nie</label>
+                    </div>
+                    <div class="form-check form-check-inline btn btn-outline-secondary">
+                        <input asp-for="Query.HasLecturerRights" class="form-check-input" type="radio" id="@Html.IdFor(m => m.Query.HasLecturerRights)_null" value="@null"/>
+                        <label class="form-check-label" for="@Html.IdFor(m => m.Query.HasLecturerRights)_null">bez znaczenia</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Query.HasResigned" class="control-label">Zrezygnował?</label>
+                    <div class="form-check form-check-inline btn btn-outline-primary">
+                        <input asp-for="Query.HasResigned" class="form-check-input" type="radio" id="@Html.IdFor(m => m.Query.HasResigned)true" value="@true"/>
+                        <label class="form-check-label" for="@Html.IdFor(m => m.Query.HasResigned)true">tak</label>
+                    </div>
+                    <div class="form-check form-check-inline btn btn-outline-primary">
+                        <input asp-for="Query.HasResigned" class="form-check-input" type="radio" id="@Html.IdFor(m => m.Query.HasResigned)false" value="@false"/>
+                        <label class="form-check-label" for="@Html.IdFor(m => m.Query.HasResigned)false">nie</label>
+                    </div>
+                    <div class="form-check form-check-inline btn btn-outline-secondary">
+                        <input asp-for="Query.HasResigned" class="form-check-input" type="radio" id="@Html.IdFor(m => m.Query.HasResigned)null" value="@null"/>
+                        <label class="form-check-label" for="@Html.IdFor(m => m.Query.HasResigned)null">bez znaczenia</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Query.SortBy" class="control-label">Sortowanie</label>
+                    @foreach (var sortBy in Enum.GetValues(typeof(Szlem.Recruitment.Enrollments.GetSubmissions.SortBy)))
+                    {
+                        <div class="form-check form-check-inline btn btn-outline-primary">
+                            <input asp-for="Query.SortBy" class="form-check-input" type="radio" id="sortBy_@sortBy" value="@sortBy"/>
+                            <label class="form-check-label" for="sortBy_@sortBy">@sortBy</label>
+                        </div>
+                    }
+                </div>
+
+                <input type="submit" value="Szukaj" class="form-control" />
+            </form>
+        </div>
+    </div>
+</div>
+
+<hr/>
+
+<h3>Zgłoszenia kandydatów na prowadzących</h3>
+<div class="container">
+    <div class="row">
+        <div class="col-sm alert alert-success">
+            Kandydat zdobył uprawnienia prowadzącego
+        </div>
+        <div class="col-sm alert alert-danger">
+            Kandydat zrezygnował
+        </div>
+        <div class="col-sm alert alert-warning">
+            Kandydat zrezygnował tymczasowo
+        </div>
+    </div>
+</div>
+<table class="table table-bordered table-sm">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Submissions.First().FullName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Submissions.First().Email)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Submissions.First().PhoneNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Submissions.First().Region)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Submissions.First().PreferredLecturingCities)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Submissions.First().PreferredTrainings)
+            </th>
+            <th>Flagi</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Submissions)
+        {
+            <tr class="@(item.HasLecturerRights ? "table-success" : string.Empty) @(item.HasResignedTemporarily ? "table-warning" : string.Empty) @(item.HasResignedPermanently ? "table-danger" : string.Empty)">
+                <td>
+                    <a asp-page="@DetailsModel.Route" asp-route-enrollmentID="@item.Id">@Html.DisplayFor(modelItem => item.FullName)</a>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Email)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PhoneNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Region)
+                </td>
+                <td>
+                    <ul>
+                        @foreach (var city in item.PreferredLecturingCities)
+                        {
+                            <li>@city</li>
+                        }
+                    </ul>
+                </td>
+                <td>
+                    <ul>
+                        @foreach (var training in item.PreferredTrainings)
+                        {
+                            <li>@training.City @Html.DisplayFor(model => training.StartDateTime.LocalDateTime)</li>
+                        }
+                    </ul>
+                </td>
+                <td>
+                    @if (item.IsCurrentSubmission)
+                    {
+                        <span title="nowe zgłoszenie" class="text-success"><i class="fas fa-clock"></i></span>
+                    }
+                    @if (item.IsOldSubmission)
+                    {
+                        <span title="stare zgłoszenie" class="text-muted"><i class="fa fa-clock"></i></span>
+                    }
+                    @if (item.HasLecturerRights)
+                    {
+                        <span title="posiada uprawnienia prowadzącego" class="text-success"><i class="fa fa-school"></i></span>
+                    }
+                    @if (item.HasResignedPermanently)
+                    {
+                        <span title="zrezygnował na stałe" class="text-danger"><i class="fa fa-ban"></i></span>
+                    }
+                    @if (item.HasResignedTemporarily)
+                    {
+                        @if (item.ResumeDate.HasValue)
+                        {
+                            <span title="zrezygnował tymczasowo (do @item.ResumeDate)" class="text-muted"><i class="fa fa-ban"></i></span>
+                        }
+                        else
+                        {
+                            <span title="zrezygnował tymczasowo" class="text-muted"><i class="fa fa-ban"></i></span>
+                        }
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@Html.PagedListPager(
+    Model.Submissions,
+    page => Url.Page(
+        IndexModel.Route,
+        new Microsoft.AspNetCore.Routing.RouteValueDictionary(Model.Query)
+            .WithValue(nameof(Model.Query.PageNo), page)
+            .WithPrefix(Html.NameFor(m => m.Query))),
+    new X.PagedList.Mvc.Core.Common.PagedListRenderOptions
+    {
+        LiElementClasses = new string[] { "page-item" },
+        PageClasses = new string[] { "page-link" }
+    })
+
+<form method="post" asp-page-handler="ExportToCsv">
+    <input type="submit" value="Eksport do CSV" class="form-control" />
+    <input type="hidden" asp-for="Query.CampaignIds" />
+    <input type="hidden" asp-for="Query.EnrollmentAge" />
+    <input type="hidden" asp-for="Query.HasLecturerRights" />
+    <input type="hidden" asp-for="Query.HasResigned" />
+    <input type="hidden" asp-for="Query.PreferredTrainingIds" />
+    <input type="hidden" asp-for="Query.SearchPattern" />
+    <input type="hidden" asp-for="Query.SortBy" />
+</form>
+
+

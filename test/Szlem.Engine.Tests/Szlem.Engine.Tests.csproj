@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="1.3.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="FluentAssertions" Version="5.10.3" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.0" />
+    <PackageReference Include="NodaTime.Testing" Version="3.0.3" />
+    <PackageReference Include="System.Data.SQLite" Version="1.0.113.6" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\AspNetCore\Szlem.AspNetCore.Common\Szlem.AspNetCore.Common.csproj" />
+    <ProjectReference Include="..\..\src\Engine\Szlem.Engine\Szlem.Engine.csproj" />
+    <ProjectReference Include="..\..\src\Szlem.DependencyInjection.AspNetCore\Szlem.DependencyInjection.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\src\Szlem.Domain\Szlem.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Szlem.Persistence.EF\Szlem.Persistence.EF.csproj" />
+    <ProjectReference Include="..\Szlem.Test.Helpers\Szlem.Test.Helpers.csproj" />
+  </ItemGroup>
+
+</Project>

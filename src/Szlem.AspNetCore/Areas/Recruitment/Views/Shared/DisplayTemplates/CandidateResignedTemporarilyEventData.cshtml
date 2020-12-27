@@ -1,0 +1,18 @@
+﻿@model Szlem.Recruitment.Enrollments.GetEnrollmentDetails.CandidateResignedTemporarilyEventData
+@using Szlem.AspNetCore.Views
+
+<div class="card border-warning">
+    <div class="card-header alert-warning"><i class="fas fa-ban"></i> Kandydat zrezygnował tymczasowo</div>
+    <div class="card-body">
+        <h6 class="card-subtitle mb-2 text-muted">@Html.DisplayFor(model => model.DateTime.LocalDateTime)</h6>
+        <div class="card-text">
+            <dl class="row">
+                @Html.DlFullRowOrEmptyValue(model => model.RecordingUser, "brak")
+                @Html.DlFullRowOrEmptyValue(model => model.ResignationReason, "nie podano")
+                @Html.DlFullRowOrEmptyValue(model => model.AdditionalNotes, "brak")
+                @Html.DlFullRowOrEmptyValue(model => model.ResumeDate, "brak")
+
+            </dl>
+        </div>
+    </div>
+</div>

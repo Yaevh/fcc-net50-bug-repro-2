@@ -1,0 +1,22 @@
+﻿@model Szlem.SchoolManagement.GetDetails.ContactOccuredEventData
+@using Szlem.AspNetCore.Views
+
+<div class="card border-info">
+    <div class="card-header alert-info"><i class="far fa-envelope"></i> Kontakt</div>
+    <div class="card-body">
+        <h6 class="card-subtitle mb-2 text-muted">@Html.DisplayFor(model => model.DateTime.LocalDateTime)</h6>
+        <div class="card-text">
+            <dl class="row">
+                @Html.DlFullRow(model => model.RecordingUser)
+                @Html.DlFullRow(model => model.CommunicationChannel)
+                @Html.DlFullRow(model => model.ContactPersonName)
+                @if (Model.EmailAddress != null)
+                    @Html.DlFullRow(model => model.EmailAddress)
+                @if (Model.PhoneNumber != null)
+                    @Html.DlFullRow(model => model.PhoneNumber)
+                @Html.DlFullRow(model => model.Content)
+                @Html.DlFullRowOrEmptyValue(model => model.AdditionalNotes, "brak")
+            </dl>
+        </div>
+    </div>
+</div>

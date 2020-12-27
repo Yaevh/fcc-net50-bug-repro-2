@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <Version>0.0.1</Version>
+    <LangVersion>7.2</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CSharpFunctionalExtensions" Version="2.13.3" />
+    <PackageReference Include="EventFlow" Version="0.81.4483" />
+    <PackageReference Include="FluentValidation" Version="9.3.0" />
+    <PackageReference Include="libphonenumber-csharp" Version="8.12.15" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="5.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Szlem.Domain\Szlem.Domain.csproj" />
+    <ProjectReference Include="..\Szlem.SharedKernel\Szlem.SharedKernel.csproj" />
+  </ItemGroup>
+
+</Project>

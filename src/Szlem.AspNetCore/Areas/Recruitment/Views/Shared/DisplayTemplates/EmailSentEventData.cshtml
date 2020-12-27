@@ -1,0 +1,24 @@
+﻿@model Szlem.Recruitment.Enrollments.GetEnrollmentDetails.EmailSentEventData
+@using Szlem.AspNetCore.Views
+@{ var guid = Guid.NewGuid(); }
+
+<div class="card border-info">
+    <div class="card-header alert-info"><i class="far fa-envelope"></i> Wysłano e-mail powitalny</div>
+    <div class="card-body">
+        <h6 class="card-subtitle mb-2 text-muted">@Html.DisplayFor(model => model.DateTime.LocalDateTime)</h6>
+        <div class="card-text">
+            <dl class="row">
+                @Html.DlFullRowOrEmptyValue(model => model.Subject, "brak")
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Body)</dt>
+                <dd class="col-sm-9">
+                    <button class="btn btn-sm btn-secondary" type="button" data-toggle="collapse" data-target="#collapse-@guid" aria-expanded="false" aria-controls="collapse-@guid">wyświetl</button>
+                    <div class="collapse" id="collapse-@guid">
+                        <div class="card card-body">
+                            @Model.Body
+                        </div>
+                    </div>
+                </dd>
+            </dl>
+        </div>
+    </div>
+</div>

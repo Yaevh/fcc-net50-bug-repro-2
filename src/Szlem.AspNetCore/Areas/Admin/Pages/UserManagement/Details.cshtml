@@ -1,0 +1,142 @@
+﻿@page
+@model DetailsModel
+
+@{
+    ViewData["Title"] = $"User {Model.UserDetails.FullName}";
+}
+
+<h2>@Model.UserDetails.FullName</h2>
+
+<div>
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.UserDetails.ID)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.UserDetails.ID)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.UserDetails.FullName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.UserDetails.FullName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.UserDetails.Email)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.UserDetails.Email)
+        </dd>
+    </dl>
+</div>
+
+@if (Model.UserDetails.CanChangeName)
+{
+    <hr />
+    <h5>Zmień imię i nazwisko</h5>
+    <div class="row">
+        <div class="col-md-4">
+            <form class="form-inline" asp-page-handler="@DetailsModel.ChangeNameActionName">
+                <input asp-for="ChangeNameCommand.UserID" type="hidden" value="@Model.UserDetails.ID" />
+
+                <div class="form-group">
+                    <label asp-for="ChangeNameCommand.FirstName"></label>
+                    <input asp-for="ChangeNameCommand.FirstName" class="form-control mx-4" value="@Model.UserDetails.FirstName" />
+                    <span asp-validation-for="ChangeNameCommand.FirstName" class="text-danger"></span>
+                    <label asp-for="ChangeNameCommand.LastName"></label>
+                    <input asp-for="ChangeNameCommand.LastName" class="form-control mx-4" value="@Model.UserDetails.LastName" />
+                    <span asp-validation-for="ChangeNameCommand.LastName" class="text-danger"></span>
+                    <input type="submit" value="Zmień imię i nazwisko" class="btn btn-primary form-control" />
+                </div>
+
+            </form>
+        </div>
+    </div>
+}
+
+
+<hr />
+<h4>Role</h4>
+
+@if (Model.UserDetails.Roles.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.UserDetails.Roles.First().Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.UserDetails.Roles.First().Description)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.UserDetails.Roles)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Description)
+                    </td>
+                    <td>
+                        @if (item.CanRevoke)
+                        {
+                            <form asp-page-handler="@DetailsModel.RevokeRoleActionName"
+                                  onsubmit="return confirm('Do you really want to revoke the role &quot;@item.Name&quot; from user &quot;@Model.UserDetails.FullName&quot;?');">
+                                <input asp-for="RevokeRoleCommand.UserID" type="hidden" value="@Model.UserDetails.ID" />
+                                <input asp-for="RevokeRoleCommand.RoleName" type="hidden" value="@item.Name" />
+                                <input type="submit" value="Odbierz rolę" class="btn btn-warning" />
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div>Użytkownik nie ma przypisanych żadnych ról</div>
+}
+
+
+@if (Model.UserDetails.CanGrantRoles)
+{
+    <hr />
+    <h5>Nadaj rolę</h5>
+    <div class="row">
+        <div class="col-md-4">
+            <form class="form-inline" asp-page-handler="@DetailsModel.GrantRoleActionName">
+                <input asp-for="GrantRoleCommand.UserID" type="hidden" value="@Model.UserDetails.ID" />
+
+                <div class="form-group">
+                    <label asp-for="GrantRoleCommand.RoleName"></label>
+                    <select class="form-control mx-4" asp-for="GrantRoleCommand.RoleName" asp-items="Model.AvailableRoles"></select>
+                    <span asp-validation-for="GrantRoleCommand.RoleName" class="text-danger"></span>
+
+                    <input type="submit" value="Nadaj rolę" class="btn btn-primary form-control" />
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+@if (Model.UserDetails.CanDelete)
+{
+    <hr />
+    <div class="row">
+        <div class="col-md-4">
+            <form asp-page-handler="@DetailsModel.DeleteUserActionName"
+                  onsubmit="return confirm('Do you really want to delete the user &quot;@Model.UserDetails.FullName&quot;?');">
+                <input asp-for="DeleteUserCommand.UserID" type="hidden" value="@Model.UserDetails.ID" />
+                <div class="form-group">
+                    <input type="submit" value="Usuń użytkownika" class="btn btn-danger" />
+                </div>
+            </form>
+        </div>
+    </div>
+}

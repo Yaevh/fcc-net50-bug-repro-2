@@ -1,0 +1,14 @@
+﻿@model NodaTime.ZonedDateTime?
+
+<div class="form-group">
+    <label asp-for="@Model" class="control-label"></label>
+    <span asp-validation-for="@Model" class="text-danger"></span>
+    <div class="input-group">
+        <input asp-for="@Model" type="text" class="form-control datetimepicker-input"
+               data-toggle="datetimepicker" data-target="#@Html.IdFor(model => model)" />
+        <div class="input-group-append" data-target="#@Html.IdFor(model => model)" data-toggle="datetimepicker">
+            <div class="input-group-text"><i class="far fa-calendar-alt"></i></div>
+        </div>
+    </div>
+    <span asp-validation-for="@Model" class="text-danger"></span>
+</div>

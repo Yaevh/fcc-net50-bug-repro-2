@@ -1,0 +1,151 @@
+﻿@page
+@using Szlem.Recruitment.Trainings
+@model Szlem.AspNetCore.Areas.Recruitment.Pages.Trainings.IndexModel
+@{
+    ViewData["Title"] = $"Moje szkolenia";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.1.2/css/tempusdominus-bootstrap-4.min.css" integrity="sha256-XPTBwC3SBoWHSmKasAk01c08M6sIA5gF5+sRxqak2Qs=" crossorigin="anonymous" />
+}
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js" integrity="sha256-4iQZ6BVL4qNKlQ27TExEhBN1HFPvAvAMbFavKKosSWQ=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/locale/pl.js" integrity="sha256-prSi7A1V9ZxDIIGoYopovpFgGHQodz6JVZu5Aad7o8s=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.1.2/js/tempusdominus-bootstrap-4.min.js" integrity="sha256-z0oKYg6xiLq3yJGsp/LsY9XykbweQlHl42jHv2XTBz4=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        $.fn.datetimepicker.Constructor.Default = $.extend({}, $.fn.datetimepicker.Constructor.Default, {
+            locale: "pl",
+            icons: {
+                time: 'fas fa-clock',
+                date: 'fa fa-calendar',
+                up: 'fa fa-arrow-up',
+                down: 'fa fa-arrow-down',
+                previous: 'fa fa-chevron-left',
+                next: 'fa fa-chevron-right',
+                today: 'fa fa-calendar-check-o',
+                clear: 'fa fa-delete',
+                close: 'fa fa-times'
+            }
+        });
+    </script>
+}
+
+@functions {
+    private async Task RenderTable(IEnumerable<TrainingSummary> trainings)
+    {
+        if (trainings.Any())
+        {
+            <table class="table table-bordered table-sm">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => Model.Trainigns.First().City)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => Model.Trainigns.First().Address)
+                        </th>
+                        <th>
+                            Termin
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => Model.Trainigns.First().CoordinatorName)
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in trainings.OrderBy(x => x.StartDateTime.ToInstant()))
+                    {
+                        <tr>
+                            <td>
+                                <a asp-page="@DetailsModel.Route" asp-route-trainingId="@item.ID">@Html.DisplayFor(modelItem => item.City)</a>
+                            </td>
+                            <td>
+                                <a asp-page="@DetailsModel.Route" asp-route-trainingId="@item.ID">@Html.DisplayFor(modelItem => item.Address)</a>
+                            </td>
+                            <td>
+                                <a asp-page="@DetailsModel.Route" asp-route-trainingId="@item.ID">@Html.DisplayFor(model => item.StartDateTime.Date) @Html.DisplayFor(model => item.StartDateTime.TimeOfDay)-@Html.DisplayFor(model => item.EndDateTime.TimeOfDay)</a>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.CoordinatorName)
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <span class="text-info">brak</span>
+        }
+    }
+}
+
+<h2>Moje szkolenia</h2>
+
+<div class="card">
+    <h5 class="card-header">Nadchodzące szkolenia</h5>
+    <div class="card-body">
+        @{ await RenderTable(Model.Trainigns.Where(x => x.Timing == TrainingTiming.Future)); }
+    </div>
+</div>
+
+<hr />
+
+<div class="card">
+    <h5 class="card-header">Przeszłe szkolenia</h5>
+    <div class="card-body">
+        @{ await RenderTable(Model.Trainigns.Where(x => x.Timing == TrainingTiming.Past)); }
+    </div>
+</div>
+
+<hr />
+
+<div class="card">
+    <h5 class="card-header">Trwające szkolenia</h5>
+    <div class="card-body">
+        @{ await RenderTable(Model.Trainigns.Where(x => x.Timing == TrainingTiming.Current)); }
+    </div>
+</div>
+
+@if (Model.Campaigns.Any())
+{
+    <hr />
+
+    <div class="card">
+        <h5 class="card-header">Zaplanuj szkolenie</h5>
+        <div class="card-body">
+            <form method="post" asp-page-handler="ScheduleTraining">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group">
+                    <label asp-for="ScheduleTrainingCommand.CampaignID" class="control-label"></label>
+                    <select asp-for="ScheduleTrainingCommand.CampaignID"
+                            asp-items="@(Model.Campaigns.Select(x => new SelectListItem($"{x.Name} {x.StartDateTime.Date}-{x.EndDateTime.Date}", x.ID.ToString())))"
+                            class="form-control">
+                    </select>
+                    <span asp-validation-for="ScheduleTrainingCommand.CampaignID" class="text-danger"></span>
+                </div>
+
+
+                <div class="form-group">
+                    <label asp-for="ScheduleTrainingCommand.City" class="control-label"></label>
+                    <input asp-for="ScheduleTrainingCommand.City" class="form-control" />
+                    <span asp-validation-for="ScheduleTrainingCommand.City" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ScheduleTrainingCommand.Address" class="control-label"></label>
+                    <input asp-for="ScheduleTrainingCommand.Address" class="form-control" />
+                    <span asp-validation-for="ScheduleTrainingCommand.Address" class="text-danger"></span>
+                </div>
+
+                @Html.EditorFor(model => model.ScheduleTrainingCommand.StartDateTime)
+                @Html.EditorFor(model => model.ScheduleTrainingCommand.EndDateTime)
+
+                <div class="form-group">
+                    <input type="submit" value="Zaplanuj szkolenie" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+    </div>
+}

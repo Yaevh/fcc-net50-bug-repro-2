@@ -1,0 +1,43 @@
+﻿@page
+@model IndexModel
+@inject IAuthorizationService AuthService
+@{
+    ViewData["Title"] = "Home page";
+}
+
+@if (Model.CurrentCampaign.HasValue)
+{
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title"><i class="fas fa-info-circle"></i> Trwa kampania rekrutacyjna <a asp-area="@Areas.Recruitment.Consts.AreaName" asp-page="@Areas.Recruitment.Pages.DetailsModel.Route" asp-route-id="@Model.CurrentCampaign.Value.ID">@Model.CurrentCampaign.Value.Name</a></h5>
+            <h6 class="card-subtitle mb-2 text-muted">@Model.CurrentCampaign.Value.StartDateTime.Date - @Model.CurrentCampaign.Value.EndDateTime.Date</h6>
+            @if (Model.CurrentCampaign.Value.IsRecruitmentFormOpen)
+            {
+                <a asp-area="@Areas.Recruitment.Consts.AreaName" asp-page="@Areas.Recruitment.Pages.RecruitmentFormModel.Route" asp-route-campaignId="@Model.CurrentCampaign.Value.ID" class="btn btn-primary">
+                    Formularz rekrutacyjny
+                </a>
+            }
+        </div>
+    </div>
+
+    <hr />
+}
+
+<div class="row">
+    <ul>
+        @if ((await AuthService.AuthorizeAsync(User, Szlem.SharedKernel.AuthorizationPolicies.AdminOnly)).Succeeded)
+        {
+            <li><a asp-area="@Areas.Admin.Consts.AreaName" asp-page="@Areas.Admin.Pages.DashboardModel.Route">Panel administratora</a></li>
+        }
+        @if ((await AuthService.AuthorizeAsync(User, Szlem.SharedKernel.AuthorizationPolicies.CoordinatorsOnly)).Succeeded)
+        {
+            <li><a asp-page="@RegionalCoordinatorDashboardModel.Route">Panel koordynatora</a></li>
+        }
+        <li><a asp-area="" asp-page="/About">About</a></li>
+        @if ((await AuthService.AuthorizeAsync(User, Szlem.SharedKernel.AuthorizationPolicies.CanAccessSwagger)).Succeeded)
+        {
+            <li><a href="/swagger">Swagger</a></li>
+        }
+    </ul>
+</div>
+

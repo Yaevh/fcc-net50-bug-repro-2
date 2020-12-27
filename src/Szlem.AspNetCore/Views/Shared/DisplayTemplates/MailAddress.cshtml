@@ -1,0 +1,10 @@
+﻿@model System.Net.Mail.MailAddress
+
+@if (string.IsNullOrWhiteSpace(Model.DisplayName))
+{
+    <a href="mailto:@Model.Address"><i class="far fa-envelope"></i> @Model.Address</a>
+}
+else
+{
+    <a href="mailto:@Model.Address"><i class="far fa-envelope"></i> @Model.DisplayName &lt;@Model.Address&gt;</a>
+}

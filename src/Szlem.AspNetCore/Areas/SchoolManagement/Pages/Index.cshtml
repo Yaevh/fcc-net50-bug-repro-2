@@ -1,0 +1,111 @@
+﻿@page
+@model Szlem.AspNetCore.Areas.SchoolManagement.Pages.IndexModel
+@using Szlem.SchoolManagement;
+@using X.PagedList.Mvc.Core;
+@{
+    ViewData["Title"] = $"Szkoły";
+}
+
+<div class="row">
+    <a asp-page="@Areas.SchoolManagement.Pages.RegisterSchoolModel.Route" class="btn btn-primary m-3">
+        <i class="fas fa-folder-plus"></i> Zarejestruj nową szkołę
+    </a>
+</div>
+
+<div class="card border border-info">
+    <div class="card-header" id="searchExpanderHeading">
+        <h5 class="mb-0">
+            <button class="btn btn-link" data-toggle="collapse" data-target="#searchExpander" aria-expanded="true" aria-controls="searchExpander">
+                Szukaj <i class="fa fa-angle-down rotate-icon"></i>
+            </button>
+        </h5>
+    </div>
+
+    <div id="searchExpander" class="collapse" aria-labelledby="searchExpanderHeading">
+        <div class="card-body">
+            <form method="get">
+                <input type="hidden" name="@nameof(Model.Query.PageNo)" value="0" />
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label asp-for="Query.PageSize" class="control-label"></label>
+                        <input asp-for="Query.PageSize" class="form-control" />
+                        <span asp-validation-for="Query.PageSize"></span>
+                    </div>
+                    <div class="form-group col-md-8">
+                        <label asp-for="Query.SearchPattern" class="control-label"></label>
+                        <input asp-for="Query.SearchPattern" value="@Model.Query.SearchPattern" class="form-control" />
+                        <span asp-validation-for="Query.SearchPattern"></span>
+                    </div>
+                </div>
+
+                <input type="submit" value="Search" class="form-control" />
+            </form>
+        </div>
+    </div>
+</div>
+
+<hr />
+
+<h3>Zarejestrowane i/lub zgłoszone szkoły</h3>
+<div class="container">
+    <div class="row">
+        <div class="col-sm alert alert-primary">
+            Szkoła wyraziła wstępną zgodę
+        </div>
+        <div class="col-sm alert alert-success">
+            Szkoła podpisała umowę
+        </div>
+        <div class="col-sm alert alert-danger">
+            Szkoła zrezygnowała
+        </div>
+    </div>
+</div>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Schools.First().Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Schools.First().City)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Schools.First().Address)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Schools)
+        {
+            <tr class="@(item.Status switch {
+                    GetSchools.SchoolStatus.HasAgreedInitially => "table-primary",
+                    GetSchools.SchoolStatus.HasResigned => "table-danger",
+                    GetSchools.SchoolStatus.HasSignedAgreement => "table-success",
+                    _ => string.Empty
+                })">
+                <td>
+                    <a asp-page="@DetailsModel.Route" asp-route-schoolId="@item.Id">@Html.DisplayFor(modelItem => item.Name)</a>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.City)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Address)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@Html.PagedListPager(
+    Model.Schools,
+    page => Url.Page(
+        IndexModel.Route,
+        new Microsoft.AspNetCore.Routing.RouteValueDictionary(Model.Query)
+            .WithValue(nameof(Model.Query.PageNo), page)
+            .WithPrefix(Html.NameFor(m => m.Query))),
+    new X.PagedList.Mvc.Core.Common.PagedListRenderOptions
+    {
+        LiElementClasses = new string[] { "page-item" },
+        PageClasses = new string[] { "page-link" }
+    })

@@ -1,0 +1,16 @@
+﻿@model Szlem.SchoolManagement.GetDetails.SchoolResignedFromCooperationEventData
+@using Szlem.AspNetCore.Views
+
+<div class="card border-danger">
+    <div class="card-header alert-danger"><i class="fas fa-ban"></i> Szkoła zrezygnowała ze współpracy</div>
+    <div class="card-body">
+        <h6 class="card-subtitle mb-2 text-muted">@Html.DisplayFor(model => model.DateTime.LocalDateTime)</h6>
+        <div class="card-text">
+            <dl class="row">
+                @Html.DlFullRow(model => model.RecordingUser)
+                @Html.DlFullRowOrEmptyValue(model => model.PotentialNextContactDate, "brak")
+                @Html.DlFullRowOrEmptyValue(model => model.AdditionalNotes, "brak")
+            </dl>
+        </div>
+    </div>
+</div>

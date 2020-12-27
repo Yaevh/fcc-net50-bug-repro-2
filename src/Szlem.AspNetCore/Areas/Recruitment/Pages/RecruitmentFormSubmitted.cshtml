@@ -1,0 +1,13 @@
+﻿@page
+@model RecruitmentFormSubmittedModel
+@addTagHelper *, Szlem.AspNetCore
+@{
+}
+
+<div class="alert alert-success">Dziękujemy za zgłoszenie do projektu. Wkrótce skontaktuje się z Tobą koordynator, aby ustalić szczegóły współpracy.</div>
+
+<div class="row">
+    <h4>Zachęcamy do rejestracji na portalu. Rejestracja pozwoli Ci śledzić postępy w rekrutacji i szkoleniach.</h4>
+</div>
+
+<vc:registration-form input="@Model.Input" return-url="~/Account"></vc:registration-form>

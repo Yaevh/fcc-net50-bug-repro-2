@@ -1,0 +1,454 @@
+﻿@page
+@model DetailsModel
+
+@if (Model.SchoolDetails == null)
+{
+    ViewData["Title"] = $"Nie znaleziono szkoły";
+
+    <div class="alert alert-danger">
+        Nie znaleziono szkoły.
+    </div>
+
+    <div class="row">
+        <div class="col">
+            Przykro nam, szkoła której szukasz nie widnieje w naszej bazie danych.
+        </div>
+        <div class="col text-right">
+            <a asp-page="@IndexModel.Route"><i class="fas fa-list"></i>&nbsp;Lista&nbsp;szkół</a>
+        </div>
+    </div>
+
+    return;
+}
+
+
+@{
+    ViewData["Title"] = $"Szkoła {@Model.SchoolDetails.Name} ({@Model.SchoolDetails.City})";
+}
+
+@section Styles {
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="~/css/select2-bootstrap4.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.1.2/css/tempusdominus-bootstrap-4.min.css" integrity="sha256-XPTBwC3SBoWHSmKasAk01c08M6sIA5gF5+sRxqak2Qs=" crossorigin="anonymous" />
+}
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js" integrity="sha256-4iQZ6BVL4qNKlQ27TExEhBN1HFPvAvAMbFavKKosSWQ=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/locale/pl.js" integrity="sha256-prSi7A1V9ZxDIIGoYopovpFgGHQodz6JVZu5Aad7o8s=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.1.2/js/tempusdominus-bootstrap-4.min.js" integrity="sha256-z0oKYg6xiLq3yJGsp/LsY9XykbweQlHl42jHv2XTBz4=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+
+    <script type="text/javascript">
+        $("#@Html.IdFor(model => model.RecordContactCommand.EmailAddress)").select2({
+            tags: true, dropdownParent: $("#recordContactModal")
+        });
+        $("#@Html.IdFor(model => model.RecordContactCommand.PhoneNumber)").select2({
+            tags: true, dropdownParent: $("#recordContactModal")
+        });
+        $.fn.datetimepicker.Constructor.Default = $.extend({}, $.fn.datetimepicker.Constructor.Default, {
+            locale: "pl",
+            icons: {
+                time: 'fas fa-clock',
+                date: 'fa fa-calendar',
+                up: 'fa fa-arrow-up',
+                down: 'fa fa-arrow-down',
+                previous: 'fa fa-chevron-left',
+                next: 'fa fa-chevron-right',
+                today: 'fa fa-calendar-check-o',
+                clear: 'fa fa-delete',
+                close: 'fa fa-times'
+            }
+        });
+    </script>
+}
+
+@functions {
+    IEnumerable<SelectListItem> FixupAttemptedValue<TSource, T>(IEnumerable<TSource> source, System.Linq.Expressions.Expression<Func<DetailsModel, T>> commandParam, Func<TSource, SelectListItem> selector)
+    {
+        var result = source
+            .Select(selector)
+            .Prepend(new SelectListItem("brak/nie dotyczy", string.Empty));
+
+        ModelState.TryGetValue(Html.NameFor(commandParam), out var modelStateEntry);
+        if (modelStateEntry != null)
+            result = result.Append(new SelectListItem(modelStateEntry?.AttemptedValue, modelStateEntry?.AttemptedValue));
+
+        return result
+            .GroupBy(x => x.Value)
+            .Select(group => group.First());
+    }
+}
+
+
+<h2>@Model.SchoolDetails.Name (@Model.SchoolDetails.City)</h2>
+
+<div>
+    <div class="row">
+        <div class="col">
+            @if (Model.SchoolDetails.HasSignedPermanentAgreement)
+            {<span class="badge badge-success"><i class="fas fa-file-contract"></i> Szkoła podpisała umowę na czas nieokreślony</span>}
+            @if (Model.SchoolDetails.HasSignedFixedTermAgreement)
+            {<span class="badge badge-success"><i class="fas fa-file-contract"></i> Szkoła podpisała umowę do @Html.DisplayFor(model => model.SchoolDetails.AgreementEndDate)</span>}
+            @if (Model.SchoolDetails.HasAgreedInitially)
+            {<span class="badge badge-primary"><i class="far fa-thumbs-up"></i> Szkoła wyraziła wstępną zgodę</span>}
+            @if (Model.SchoolDetails.HasResignedPermanently)
+            {<span class="badge badge-danger"><i class="fa fa-ban"></i> Szkoła zrezygnowała</span>}
+            @if (Model.SchoolDetails.HasResignedTemporarily)
+            {<span class="badge badge-danger"><i class="fa fa-ban"></i> Szkoła zrezygnowała do @Html.DisplayFor(model => model.SchoolDetails.ResignationEndDate)</span>}
+        </div>
+        <div class="col text-right">
+            <a asp-page="@IndexModel.Route"><i class="fas fa-list"></i>&nbsp;Lista&nbsp;szkół</a>
+        </div>
+    </div>
+
+    @if (ModelState.IsValid == false)
+    {
+        <div class="alert alert-danger">
+            <div asp-validation-summary="All" class="text-danger"></div>
+        </div>
+    }
+    <hr />
+
+
+    <dl>
+        <dt>
+            @Html.DisplayNameFor(model => model.SchoolDetails.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.SchoolDetails.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.SchoolDetails.Address)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.SchoolDetails.Address)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.SchoolDetails.City)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.SchoolDetails.City)
+        </dd>
+    </dl>
+
+    <h4>Dane kontaktowe</h4>
+    @foreach (var contactData in Model.SchoolDetails.ContactData)
+    {
+        <dl>
+            <dt>@Html.DisplayNameFor(model => contactData.Name)</dt>
+            <dd>@Html.DisplayFor(model => contactData.Name)</dd>
+            <dt>@Html.DisplayNameFor(model => contactData.EmailAddress)</dt>
+            <dd>@Html.DisplayFor(model => contactData.EmailAddress)</dd>
+            <dt>@Html.DisplayNameFor(model => contactData.PhoneNumber)</dt>
+            <dd>@Html.DisplayFor(model => contactData.PhoneNumber)</dd>
+            @if (contactData.Comment.IsNullOrWhiteSpace() == false)
+            {
+                <dt>@Html.DisplayNameFor(model => contactData.Comment)</dt>
+                <dd>@Html.DisplayFor(model => contactData.Comment)</dd>
+            }
+        </dl>
+        <hr />
+    }
+
+    @if (Model.SchoolDetails.Notes.Any()){
+        <div id="notesAccordion">
+            <div class="card">
+                <div class="card-header" id="notesAccordionHeading">
+                    <h4>
+                        <button class="btn btn-link" data-toggle="collapse" data-target="#notesAccordionContent" aria-expanded="false" aria-controls="notesAccordionContent">
+                            Notatki związane ze szkołą <i class="fas fa-angle-down rotate-icon"></i>
+                        </button>
+                        <button type="button" class="btn btn-info float-right" data-toggle="modal" data-target="#addNoteModal"><i class="far fa-sticky-note"></i> Dodaj notatkę</button>
+                    </h4>
+                    
+                </div>
+
+
+                <div id="notesAccordionContent" class="collapse show" aria-labelledby="notesAccordionHeading" data-parent="#notesAccordion">
+                    <div class="card-body">
+                        @foreach (var note in Model.SchoolDetails.Notes)
+                        {
+                            <div class="card border-info">
+                                <div class="card-header alert-secondary">
+                                    <i class="far fa-sticky-note"></i> @note.Author
+                                    <form asp-page-handler="DeleteNote"
+                                          onsubmit="return confirm('Czy na pewno chcesz usunąć notatkę?');"
+                                          class="float-right">
+                                        <input asp-for="DeleteNoteCommand.SchoolId" type="hidden" value="@Model.SchoolDetails.Id" />
+                                        <input asp-for="DeleteNoteCommand.NoteId" type="hidden" value="@note.Id" />
+                                        <button type="submit" class="btn btn-sm btn-danger float-right"><i class="far fa-trash-alt"></i> Usuń</button>
+                                    </form>
+                                    <button type="button" class="btn btn-sm btn-warning float-right mx-3" data-toggle="modal" data-target="#editNoteModal"
+                                        onclick="$('#@Html.IdFor(model => model.EditNoteCommand.NoteId)').val('@note.Id'); $('#@Html.IdFor(model => model.EditNoteCommand.Content)').val('@note.Content');">
+                                        <i class="far fa-edit"></i> Edytuj
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <h6 class="card-subtitle mb-2 text-muted">
+                                        @Html.DisplayFor(model => note.CreatedAt.LocalDateTime)
+                                        @if (note.WasEdited) { <text>(edytowano </text> @Html.DisplayFor(model => note.EditedAt.Value.LocalDateTime) <text>)</text> }
+                                    </h6>
+                                    <div class="card-text">
+                                        @note.Content
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br/>
+    }
+    
+
+    <div id="eventsAccordion">
+        <div class="card">
+            <div class="card-header" id="eventsAccordionHeading">
+                <h4 class="mb-0">
+                    <button class="btn btn-link" data-toggle="collapse" data-target="#eventsAccordionContent" aria-expanded="false" aria-controls="eventsAccordionContent">
+                        Zdarzenia związane ze szkołą <i class="fas fa-angle-down rotate-icon"></i>
+                    </button>
+                </h4>
+            </div>
+
+            <div id="eventsAccordionContent" class="collapse show" aria-labelledby="eventsAccordionHeading" data-parent="#eventsAccordion">
+                <div class="card-body">
+                    @foreach (var evt in Model.SchoolDetails.Events)
+                    {
+                        {@Html.DisplayFor(m => evt, evt.GetType().Name, new { schoolId = Model.SchoolId }) <br />}
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="command-buttons" class="my-2">
+
+        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#recordContactModal"><i class="far fa-envelope"></i> Zarejestruj kontakt</button>
+        <div class="modal fade" id="recordContactModal" tabindex="-1" role="dialog" aria-labelledby="recordContactModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <form asp-page-handler="RecordContact">
+                    <div class="modal-content">
+                        <div class="modal-header bg-info text-white">
+                            <h5 class="modal-title" id="recordContactModalLabel">Zarejestruj kontakt</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true" class="text-white">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" asp-for="RecordContactCommand.SchoolId" value="@Model.SchoolId" />
+
+                            <div class="form-group">
+                                <label asp-for="RecordContactCommand.CommunicationChannel" class="control-label"></label>
+                                <span asp-validation-for="RecordContactCommand.CommunicationChannel" class="text-danger"></span>
+                                <select asp-for="RecordContactCommand.CommunicationChannel"
+                                        asp-items="Szlem.SchoolManagement.CommunicationChannelType.List
+                                    .OrderBy(x => x.Value).Select(x => new SelectListItem(x.DisplayName, x.Value.ToString()))"
+                                        class="form-control">
+                                </select>
+                            </div>
+
+                            @Html.EditorFor(model => model.RecordContactCommand.ContactTimestamp)
+
+                            <div class="form-group">
+                                <label asp-for="RecordContactCommand.EmailAddress" class="control-label"></label>
+                                <span asp-validation-for="RecordContactCommand.EmailAddress" class="text-danger"></span>
+                                <select asp-for="RecordContactCommand.EmailAddress"
+                                        asp-items="FixupAttemptedValue(Model.SchoolDetails.ContactData, m => m.RecordContactCommand.EmailAddress, x => new SelectListItem(x.EmailAddress, x.EmailAddress))"
+                                        class="form-control">
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="RecordContactCommand.PhoneNumber" class="control-label"></label>
+                                <span asp-validation-for="RecordContactCommand.PhoneNumber" class="text-danger"></span>
+                                <select asp-for="RecordContactCommand.PhoneNumber"
+                                        asp-items="FixupAttemptedValue(Model.SchoolDetails.ContactData, m => m.RecordContactCommand.PhoneNumber, x => new SelectListItem(x.PhoneNumber, x.PhoneNumber))"
+                                        class="form-control">
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="RecordContactCommand.ContactPersonName" class="control-label"></label>
+                                <span asp-validation-for="RecordContactCommand.ContactPersonName" class="text-danger"></span>
+                                <input asp-for="RecordContactCommand.ContactPersonName" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="RecordContactCommand.Content" class="control-label"></label>
+                                <span asp-validation-for="RecordContactCommand.Content" class="text-danger"></span>
+                                <textarea asp-for="RecordContactCommand.Content" class="form-control"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="RecordContactCommand.AdditionalNotes" class="control-label"></label>
+                                <span asp-validation-for="RecordContactCommand.AdditionalNotes" class="text-danger"></span>
+                                <textarea asp-for="RecordContactCommand.AdditionalNotes" class="form-control"></textarea>
+                            </div>
+                            <div class="modal-footer">
+                                <input type="submit" class="btn btn-primary" value="Zapisz" />
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Anuluj</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#recordInitialAgreementModal"><i class="far fa-thumbs-up"></i> Zarejestruj wstępną zgodę</button>
+        <div class="modal fade" id="recordInitialAgreementModal" tabindex="-1" role="dialog" aria-labelledby="recordInitialAgreementModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <form asp-page-handler="RecordInitialAgreement">
+                    <div class="modal-content">
+                        <div class="modal-header bg-info text-white">
+                            <h5 class="modal-title" id="recordInitialAgreementModalLabel">Zarejestruj wstępną zgodę szkoły na prowadzenie zajęć</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true" class="text-white">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" asp-for="RecordInitialAgreementCommand.SchoolId" value="@Model.SchoolId" />
+                            <div class="form-group">
+                                <label asp-for="RecordInitialAgreementCommand.AgreeingPersonName" class="control-label"></label>
+                                <span asp-validation-for="RecordInitialAgreementCommand.AgreeingPersonName" class="text-danger"></span>
+                                <input asp-for="RecordInitialAgreementCommand.AgreeingPersonName" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="RecordInitialAgreementCommand.AdditionalNotes" class="control-label"></label>
+                                <span asp-validation-for="RecordInitialAgreementCommand.AdditionalNotes" class="text-danger"></span>
+                                <textarea asp-for="RecordInitialAgreementCommand.AdditionalNotes" class="form-control"></textarea>
+                            </div>
+                            <div class="modal-footer">
+                                <input type="submit" class="btn btn-primary" value="Zapisz" />
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Anuluj</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#recordAgreementSignedModal"><i class="fas fa-file-contract"></i> Zarejestruj umowę</button>
+        <div class="modal fade" id="recordAgreementSignedModal" tabindex="-1" role="dialog" aria-labelledby="recordAgreementSignedModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <form asp-page-handler="RecordAgreementSigned" enctype="multipart/form-data">
+                    <div class="modal-content">
+                        <div class="modal-header bg-success text-white">
+                            <h5 class="modal-title" id="recordAgreementSignedModalLabel">Zarejestruj podpisanie umowy o prowadzenie zajęć</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true" class="text-white">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" asp-for="RecordAgreementSignedModel.Command.SchoolId" value="@Model.SchoolId" />
+                            <div class="form-group">
+                                <label asp-for="RecordAgreementSignedModel.AgreementFile" class="control-label"></label>
+                                <span asp-validation-for="RecordAgreementSignedModel.AgreementFile" class="text-danger"></span>
+                                <input asp-for="RecordAgreementSignedModel.AgreementFile" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="RecordAgreementSignedModel.Command.Duration" class="control-label"></label>
+                                <span asp-validation-for="RecordAgreementSignedModel.Command.Duration" class="text-danger"></span>
+                                <select asp-for="RecordAgreementSignedModel.Command.Duration"
+                                        asp-items="Html.GetEnumSelectList<Szlem.SchoolManagement.RecordAgreementSigned.AgreementDuration>()"
+                                        class="form-control"></select>
+                            </div>
+                            @Html.EditorFor(m => m.RecordAgreementSignedModel.Command.AgreementEndDate)
+                            <div class="form-group">
+                                <label asp-for="RecordAgreementSignedModel.Command.AdditionalNotes" class="control-label"></label>
+                                <span asp-validation-for="RecordAgreementSignedModel.Command.AdditionalNotes" class="text-danger"></span>
+                                <textarea asp-for="RecordAgreementSignedModel.Command.AdditionalNotes" class="form-control"></textarea>
+                            </div>
+                            <div class="modal-footer">
+                                <input type="submit" class="btn btn-primary" value="Zapisz" />
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Anuluj</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#recordResignationModal"><i class="fas fa-ban"></i> Zarejestruj rezygnację</button>
+        <div class="modal fade" id="recordResignationModal" tabindex="-1" role="dialog" aria-labelledby="recordResignationModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <form asp-page-handler="RecordResignation">
+                    <div class="modal-content">
+                        <div class="modal-header bg-danger text-white">
+                            <h5 class="modal-title" id="recordResignationModalLabel">Zarejestruj rezygnację szkoły z projektu</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true" class="text-white">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" asp-for="RecordResignationCommand.SchoolId" value="@Model.SchoolId" />
+
+                            @Html.EditorFor(model => model.RecordResignationCommand.PotentialNextContactDate)
+                            <div class="form-group">
+                                <label asp-for="RecordResignationCommand.AdditionalNotes" class="control-label"></label>
+                                <span asp-validation-for="RecordResignationCommand.AdditionalNotes" class="text-danger"></span>
+                                <textarea asp-for="RecordResignationCommand.AdditionalNotes" class="form-control"></textarea>
+                            </div>
+                            <div class="modal-footer">
+                                <input type="submit" class="btn btn-danger" value="Zapisz" />
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Anuluj</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#addNoteModal"><i class="far fa-sticky-note"></i> Dodaj notatkę</button>
+        <div class="modal fade" id="addNoteModal" tabindex="-1" role="dialog" aria-labelledby="addNoteModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <form asp-page-handler="AddNote">
+                    <div class="modal-content">
+                        <div class="modal-header bg-info text-white">
+                            <h5 class="modal-title" id="addNoteModalLabel">Dodaj notatkę o szkole</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true" class="text-white">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" asp-for="AddNoteCommand.SchoolId" value="@Model.SchoolId" />
+                            <div class="form-group">
+                                <label asp-for="AddNoteCommand.Content" class="control-label"></label>
+                                <span asp-validation-for="AddNoteCommand.Content" class="text-danger"></span>
+                                <textarea asp-for="AddNoteCommand.Content" class="form-control"></textarea>
+                            </div>
+                            <div class="modal-footer">
+                                <input type="submit" class="btn btn-primary" value="Zapisz" />
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Anuluj</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editNoteModal" tabindex="-1" role="dialog" aria-labelledby="editNoteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <form asp-page-handler="EditNote">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="editNoteModalLabel">Edytuj notatkę o szkole</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true" class="text-white">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" asp-for="EditNoteCommand.SchoolId" value="@Model.SchoolId" />
+                    <input type="hidden" asp-for="EditNoteCommand.NoteId" value="@Guid.Empty" />
+                    <div class="form-group">
+                        <label asp-for="EditNoteCommand.Content" class="control-label"></label>
+                        <span asp-validation-for="EditNoteCommand.Content" class="text-danger"></span>
+                        <textarea asp-for="EditNoteCommand.Content" class="form-control"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="submit" class="btn btn-primary" value="Zapisz" />
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Anuluj</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>

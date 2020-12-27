@@ -1,0 +1,1 @@
+dotnet ef migrations remove --project ./src/Szlem.Persistence.EF --startup-project ./src/Szlem.AspNetCore --verbose

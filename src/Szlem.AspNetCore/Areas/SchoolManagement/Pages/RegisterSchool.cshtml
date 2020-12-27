@@ -1,0 +1,69 @@
+﻿@page
+@model Szlem.AspNetCore.Areas.SchoolManagement.Pages.RegisterSchoolModel
+@{
+}
+
+<h3>Dodaj dane szkoły</h3>
+
+@if (ModelState.IsValid == false)
+{
+    <div class="alert alert-danger">
+        Formularz został błędnie wypełniony. Popraw błędy i spróbuj jeszcze raz.
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <form method="post" asp-page-handler="ScheduleTraining">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="Command.Name" class="control-label"></label>
+                <input asp-for="Command.Name" class="form-control" />
+                <span asp-validation-for="Command.Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Command.City" class="control-label"></label>
+                <input asp-for="Command.City" class="form-control" />
+                <span asp-validation-for="Command.City" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Command.Address" class="control-label"></label>
+                <input asp-for="Command.Address" class="form-control" />
+                <span asp-validation-for="Command.Address" class="text-danger"></span>
+            </div>
+
+            <hr />
+            <h5>Dane kontaktowe</h5>
+
+            <div class="form-group">
+                <label asp-for="Command.ContactData[0].Name" class="control-label"></label>
+                <input asp-for="Command.ContactData[0].Name" class="form-control" />
+                <span asp-validation-for="Command.ContactData[0].Name" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Command.ContactData[0].PhoneNumber" class="control-label"></label>
+                <input asp-for="Command.ContactData[0].PhoneNumber" class="form-control" />
+                <span asp-validation-for="Command.ContactData[0].PhoneNumber" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Command.ContactData[0].EmailAddress" class="control-label"></label>
+                <input asp-for="Command.ContactData[0].EmailAddress" class="form-control" />
+                <span asp-validation-for="Command.ContactData[0].EmailAddress" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Command.ContactData[0].Comment" class="control-label"></label>
+                <input asp-for="Command.ContactData[0].Comment" class="form-control" />
+                <span asp-validation-for="Command.ContactData[0].Comment" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Submit" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>

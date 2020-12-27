@@ -1,0 +1,345 @@
+﻿@page
+@model DetailsModel
+
+@if (Model.EnrollmentDetails == null)
+{
+    ViewData["Title"] = $"Nie znaleziono kandydata";
+
+    <div class="alert alert-danger">
+        Nie znaleziono kandydata.
+    </div>
+
+    <div class="row">
+        <div class="col">
+            Przykro nam, kandydat którego szukasz nie widnieje w naszej bazie danych.
+        </div>
+        <div class="col text-right">
+            <a asp-page="@Enrollments.IndexModel.Route"><i class="far fa-hand-paper"></i>&nbsp;Lista&nbsp;kandydatów</a> |
+            <a asp-page="@Trainings.IndexModel.Route"><i class="fas fa-chalkboard-teacher"></i>&nbsp;Twoje&nbsp;szkolenia</a>
+        </div>
+    </div>
+
+    return;
+}
+
+
+
+@{
+    ViewData["Title"] = $"Zgłoszenie {Model.EnrollmentDetails.FullName}";
+}
+
+<h2>@Model.EnrollmentDetails.FullName</h2>
+
+<div>
+    <div class="row">
+        <div class="col">
+            @if (Model.EnrollmentDetails.IsCurrentSubmission)
+            {<span class="badge badge-primary" title="Kandydat zgłosił się w trakcie ostatniej kampanii rekrutacyjnej"><i class="fas fa-clock"></i> Nowe zgłoszenie</span>}
+            @if (Model.EnrollmentDetails.IsOldSubmission)
+            {<span class="badge badge-secondary" title="Kandydat zgłosił się w trakcie starej kampanii rekrutacyjnej"><i class="fa fa-clock"></i> Stare zgłoszenie</span>}
+            @if (Model.EnrollmentDetails.HasLecturerRights)
+            {<span class="badge badge-success"><i class="fa fa-school"></i> Posiada uprawnienia prowadzącego</span>}
+            @if (Model.EnrollmentDetails.HasResignedPermanently)
+            {<span class="badge badge-danger"><i class="fa fa-ban"></i> Zrezygnował na stałe</span>}
+            @if (Model.EnrollmentDetails.HasResignedTemporarily)
+            {
+                @if (Model.EnrollmentDetails.ResumeDate.HasValue)
+                    {<span class="badge badge-secondary"><i class="fa fa-ban"></i> zrezygnował tymczasowo (do @Model.EnrollmentDetails.ResumeDate)</span>}
+                else
+                    { <span class="badge badge-secondary"><i class="fa fa-ban"></i> Zrezygnował tymczasowo</span> }
+            }
+        </div>
+        <div class="col text-right">
+            <a asp-page="@Enrollments.IndexModel.Route"><i class="far fa-hand-paper"></i>&nbsp;Lista&nbsp;kandydatów</a> |
+            <a asp-page="@Trainings.IndexModel.Route"><i class="fas fa-chalkboard-teacher"></i>&nbsp;Twoje&nbsp;szkolenia</a>
+        </div>
+    </div>
+
+    @if (ModelState.IsValid == false)
+    {
+        <div class="alert alert-danger">
+            <div asp-validation-summary="All" class="text-danger"></div>
+        </div>
+    }
+    <hr />
+
+
+    <dl class="row">
+        <dt class="col-sm-3"> @Html.DisplayNameFor(model => model.EnrollmentDetails.SubmissionDateTime) </dt>
+        <dd class="col-sm-9"> @Html.DisplayFor(model => model.EnrollmentDetails.SubmissionDateTime.LocalDateTime) </dd>
+
+        @Html.DlFullRow(model => model.EnrollmentDetails.FullName)
+        @Html.DlFullRow(model => model.EnrollmentDetails.Email)
+        @Html.DlFullRow(model => model.EnrollmentDetails.PhoneNumber)
+        @Html.DlFullRow(model => model.EnrollmentDetails.Region)
+    </dl>
+    <dl>
+        <dt> @Html.DisplayNameFor(model => model.EnrollmentDetails.PreferredLecturingCities) </dt>
+        <dd>
+            <ul>
+                @foreach (var city in Model.EnrollmentDetails.PreferredLecturingCities)
+                {
+                    <li>@city</li>
+                }
+            </ul>
+        </dd>
+
+        <dt>@Html.DisplayNameFor(model => model.EnrollmentDetails.PreferredTrainings)</dt>
+        <dd>
+            <ul>
+                @foreach (var training in Model.EnrollmentDetails.PreferredTrainings)
+                {
+                    <li>@Html.DisplayFor(m => training)</li>
+                }
+            </ul>
+        </dd>
+
+        @if (Model.EnrollmentDetails.SelectedTraining != null)
+        {
+            <dt> @Html.DisplayNameFor(model => model.EnrollmentDetails.SelectedTraining) </dt>
+            <dd> @Html.DisplayFor(m => m.EnrollmentDetails.SelectedTraining) </dd>
+        }
+    </dl>
+
+
+    <div id="eventsAccordion">
+        <div class="card">
+            <div class="card-header" id="headingOne">
+                <h4 class="mb-0">
+                    <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                        Zdarzenia związane z kandydatem <i class="fas fa-angle-down rotate-icon"></i>
+                    </button>
+                </h4>
+            </div>
+
+            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#eventsAccordion">
+                <div class="card-body">
+                    @foreach (var evt in Model.EnrollmentDetails.Events)
+                    {@Html.DisplayFor(m => evt, evt.GetType().Name) <br />}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="command-buttons" class="my-2">
+        @if (Model.EnrollmentDetails.CanInviteToTraining)
+        {
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#inviteToTrainingModal">Zaproś kandydata na szkolenie<br />lub zarejestruj odpowiedź na zaproszenie na szkolenie</button>
+
+            <div class="modal fade" id="inviteToTrainingModal" tabindex="-1" role="dialog" aria-labelledby="inviteToTrainingModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header bg-info text-white">
+                            <h5 class="modal-title" id="inviteToTrainingModalLabel">Skontaktuj się z kandydatem i zarejestruj odpowiedź</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true" class="text-white">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form asp-page-handler="CandidateAcceptedTrainingInvitation">
+                                <div class="card border-primary">
+                                    <div class="card-header">Kandydat przyjął zaproszenie na szkolenie</div>
+                                    <div class="card-body">
+                                        <input type="hidden" asp-for="RecordAcceptedTrainingInvitationCommand.EnrollmentId" value="@Model.EnrollmentId" />
+
+                                        <label asp-for="RecordAcceptedTrainingInvitationCommand.CommunicationChannel" class="control-label"></label>
+                                        <span asp-validation-for="RecordAcceptedTrainingInvitationCommand.CommunicationChannel" class="text-danger"></span>
+                                        <select asp-for="RecordAcceptedTrainingInvitationCommand.CommunicationChannel" asp-items="Html.GetEnumSelectList<Szlem.Recruitment.Enrollments.CommunicationChannel>()" class="form-control"></select>
+
+                                        <label asp-for="RecordAcceptedTrainingInvitationCommand.SelectedTrainingID" class="control-label"></label>
+                                        <span asp-validation-for="RecordAcceptedTrainingInvitationCommand.SelectedTrainingID" class="text-danger"></span>
+                                        <select asp-for="RecordAcceptedTrainingInvitationCommand.SelectedTrainingID" class="form-control">
+                                            @foreach (var training in Model.EnrollmentDetails.PreferredTrainings)
+                                            {
+                                                <option value="@training.ID">
+                                                    @Html.DisplayFor(model => training)
+                                                </option>
+                                            }
+                                        </select>
+
+                                        <label asp-for="RecordAcceptedTrainingInvitationCommand.AdditionalNotes" class="control-label"></label>
+                                        <span asp-validation-for="RecordAcceptedTrainingInvitationCommand.AdditionalNotes" class="text-danger"></span>
+                                        <textarea asp-for="RecordAcceptedTrainingInvitationCommand.AdditionalNotes" class="form-control"></textarea>
+                                    </div>
+                                    <div class="card-footer">
+                                        <input type="submit" class="btn btn-primary" value="Save" />
+                                    </div>
+                                </div>
+                            </form>
+                            @if (Model.EnrollmentDetails.CanRefuseTrainingInvitation)
+                            {
+                                <hr />
+                                <form asp-page-handler="CandidateRefusedTrainingInvitation">
+                                    <div class="card border-danger">
+                                        <div class="card-header">Kandydat odmówił udziału w szkoleniu</div>
+                                        <div class="card-body">
+                                            <h6 class="card-subtitle text-muted">
+                                                Użyj tego formularza, jeśli kandydat nie chce lub nie może wziąć udziału w żadnym szkoleniu.
+                                                Jeśli kandydat nie może wziąć udziału w konkretnym szkoleniu, ale inne szkolenia mu potencjalnie pasują,
+                                                zaznacz to za pomocą formularza rejestracji kontaktu z kandydatem - wpisz tą informację w treści kontaktu lub notatkach.
+                                            </h6>
+                                            <hr />
+                                            <input type="hidden" asp-for="RecordRefusedTrainingInvitationCommand.EnrollmentId" value="@Model.EnrollmentId" />
+
+                                            <label asp-for="RecordRefusedTrainingInvitationCommand.CommunicationChannel" class="control-label"></label>
+                                            <span asp-validation-for="RecordRefusedTrainingInvitationCommand.CommunicationChannel" class="text-danger"></span>
+                                            <select asp-for="RecordRefusedTrainingInvitationCommand.CommunicationChannel" asp-items="Html.GetEnumSelectList<Szlem.Recruitment.Enrollments.CommunicationChannel>()" class="form-control"></select>
+
+                                            <label asp-for="RecordRefusedTrainingInvitationCommand.RefusalReason" class="control-label"></label>
+                                            <span asp-validation-for="RecordRefusedTrainingInvitationCommand.RefusalReason" class="text-danger"></span>
+                                            <textarea asp-for="RecordRefusedTrainingInvitationCommand.RefusalReason" class="form-control"></textarea>
+
+                                            <label asp-for="RecordRefusedTrainingInvitationCommand.AdditionalNotes" class="control-label"></label>
+                                            <span asp-validation-for="RecordRefusedTrainingInvitationCommand.AdditionalNotes" class="text-danger"></span>
+                                            <textarea asp-for="RecordRefusedTrainingInvitationCommand.AdditionalNotes" class="form-control"></textarea>
+                                        </div>
+                                        <div class="card-footer">
+                                            <input type="submit" class="btn btn-danger" value="Save" />
+                                        </div>
+                                    </div>
+                                </form>
+                            }
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (Model.EnrollmentDetails.CanRecordTrainingResults)
+        {
+            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#registerTrainingResultsModal">Zarejestruj wyniki szkolenia</button>
+
+            <div class="modal fade" id="registerTrainingResultsModal" tabindex="-1" role="dialog" aria-labelledby="registerTrainingResultsModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <form asp-page-handler="RecordTrainingResults">
+                        <div class="modal-content">
+                            <div class="modal-header bg-info text-white">
+                                <h5 class="modal-title" id="registerTrainingResultsModalLabel">Zarejestruj wyniki szkolenia</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true" class="text-white">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" asp-for="RecordTrainingResultsCommand.EnrollmentId" value="@Model.EnrollmentId" />
+
+                                <label asp-for="RecordTrainingResultsCommand.TrainingResult" class="control-label"></label>
+                                <span asp-validation-for="RecordTrainingResultsCommand.TrainingResult" class="text-danger"></span>
+                                <select asp-for="RecordTrainingResultsCommand.TrainingResult" asp-items="Html.GetEnumSelectList<Szlem.Recruitment.Enrollments.RecordTrainingResults.TrainingResult>()" class="form-control"></select>
+
+                                <label asp-for="RecordTrainingResultsCommand.TrainingId" class="control-label"></label>
+                                <span asp-validation-for="RecordTrainingResultsCommand.TrainingId" class="text-danger"></span>
+                                <select asp-for="RecordTrainingResultsCommand.TrainingId" asp-items="Model.PreferredTrainings" class="form-control"></select>
+
+                                <label asp-for="RecordTrainingResultsCommand.AdditionalNotes" class="control-label"></label>
+                                <span asp-validation-for="RecordTrainingResultsCommand.AdditionalNotes" class="text-danger"></span>
+                                <textarea asp-for="RecordTrainingResultsCommand.AdditionalNotes" class="form-control"></textarea>
+                            </div>
+                            <div class="modal-footer">
+                                <input type="submit" class="btn btn-primary" value="Save" />
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        }
+
+        @if (Model.EnrollmentDetails.CanResign)
+        {
+            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#registerResignationModal">Zarejestruj rezygnację kandydata</button>
+
+            <div class="modal fade" id="registerResignationModal" tabindex="-1" role="dialog" aria-labelledby="registerResignationModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <form asp-page-handler="CandidateResigned">
+                        <div class="modal-content">
+                            <div class="modal-header bg-danger text-white">
+                                <h5 class="modal-title" id="registerResignationModalLabel">Zarejestruj rezygnację kandydata</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true" class="text-white">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+
+                                <input type="hidden" asp-for="RecordResignationCommand.EnrollmentId" value="@Model.EnrollmentId" />
+
+                                <label asp-for="RecordResignationCommand.ResignationType" class="control-label"></label><br />
+                                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                    <div class="btn btn-outline-danger">
+                                        <input asp-for="RecordResignationCommand.ResignationType" class="form-check-input" type="radio" id="@Html.IdFor(m => m.RecordResignationCommand.ResignationType)true" value="@Szlem.Recruitment.Enrollments.RecordResignation.ResignationType.Permanent" />
+                                        <label class="form-check-label" for="@Html.IdFor(m => m.RecordResignationCommand.ResignationType)true">rezygnacja trwała</label>
+                                    </div>
+                                    <div class="btn btn-outline-success">
+                                        <input asp-for="RecordResignationCommand.ResignationType" class="form-check-input" type="radio" id="@Html.IdFor(m => m.RecordResignationCommand.ResignationType)false" value="@Szlem.Recruitment.Enrollments.RecordResignation.ResignationType.Temporary" />
+                                        <label class="form-check-label" for="@Html.IdFor(m => m.RecordResignationCommand.ResignationType)false">rezygnacja tymczasowa</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="RecordResignationCommand.ResumeDate" class="control-label">Jeśli rezygnujesz tymczasowo, to wpisz tu datę, od której mógłbyś powrócić do projektu (pole opcjonalne)</label><br />
+                                    <span asp-validation-for="RecordResignationCommand.ResumeDate" class="text-danger"></span>
+                                    <input asp-for="RecordResignationCommand.ResumeDate" type="date" class="form-control" />
+                                </div>
+
+                                <label asp-for="RecordResignationCommand.CommunicationChannel" class="control-label"></label>
+                                <span asp-validation-for="RecordResignationCommand.CommunicationChannel" class="text-danger"></span>
+                                <select asp-for="RecordResignationCommand.CommunicationChannel" asp-items="Html.GetEnumSelectList<Szlem.Recruitment.Enrollments.CommunicationChannel>()" class="form-control"></select>
+
+                                <label asp-for="RecordResignationCommand.ResignationReason" class="control-label"></label>
+                                <span asp-validation-for="RecordResignationCommand.ResignationReason" class="text-danger"></span>
+                                <textarea asp-for="RecordResignationCommand.ResignationReason" class="form-control"></textarea>
+
+                                <label asp-for="RecordResignationCommand.AdditionalNotes" class="control-label"></label>
+                                <span asp-validation-for="RecordResignationCommand.AdditionalNotes" class="text-danger"></span>
+                                <textarea asp-for="RecordResignationCommand.AdditionalNotes" class="form-control"></textarea>
+                            </div>
+                            <div class="modal-footer">
+                                <input type="submit" class="btn btn-primary" value="Save" />
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        }
+
+        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#recordContactModal">Zarejestruj kontakt z kandydatem</button>
+
+        <div class="modal fade" id="recordContactModal" tabindex="-1" role="dialog" aria-labelledby="recordContactModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <form asp-page-handler="RecordContact">
+                    <div class="modal-content">
+                        <div class="modal-header bg-info text-white">
+                            <h5 class="modal-title" id="recordContactModalLabel">Zarejestruj kontakt</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true" class="text-white">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" asp-for="RecordContactCommand.EnrollmentId" value="@Model.EnrollmentId" />
+
+                            <label asp-for="RecordContactCommand.CommunicationChannel" class="control-label"></label>
+                            <span asp-validation-for="RecordContactCommand.CommunicationChannel" class="text-danger"></span>
+                            <select asp-for="RecordContactCommand.CommunicationChannel" asp-items="Html.GetEnumSelectList<Szlem.Recruitment.Enrollments.CommunicationChannel>()" class="form-control"></select>
+
+                            <label asp-for="RecordContactCommand.Content" class="control-label"></label>
+                            <span asp-validation-for="RecordContactCommand.Content" class="text-danger"></span>
+                            <textarea asp-for="RecordContactCommand.Content" class="form-control"></textarea>
+
+                            <label asp-for="RecordContactCommand.AdditionalNotes" class="control-label"></label>
+                            <span asp-validation-for="RecordContactCommand.AdditionalNotes" class="text-danger"></span>
+                            <textarea asp-for="RecordContactCommand.AdditionalNotes" class="form-control"></textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <input type="submit" class="btn btn-primary" value="Save" />
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

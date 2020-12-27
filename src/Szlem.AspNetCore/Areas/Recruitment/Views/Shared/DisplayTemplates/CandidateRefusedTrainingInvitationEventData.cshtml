@@ -1,0 +1,16 @@
+﻿@model Szlem.Recruitment.Enrollments.GetEnrollmentDetails.CandidateRefusedTrainingInvitationEventData
+@using Szlem.AspNetCore.Views
+
+<div class="card border-warning">
+    <div class="card-header alert-warning"><i class="far fa-times-circle"></i> Kandydat odrzucił zaproszenie na wszystkie szkolenia</div>
+    <div class="card-body">
+        <h6 class="card-subtitle mb-2 text-muted">@Html.DisplayFor(model => model.DateTime.LocalDateTime)</h6>
+        <div class="card-text">
+            <dl class="row">
+                @Html.DlFullRowOrEmptyValue(model => model.RecordingUser, "brak")
+                @Html.DlFullRowOrEmptyValue(model => model.RefusalReason, "nie podano")
+                @Html.DlFullRowOrEmptyValue(model => model.AdditionalNotes, "brak")
+            </dl>
+        </div>
+    </div>
+</div>

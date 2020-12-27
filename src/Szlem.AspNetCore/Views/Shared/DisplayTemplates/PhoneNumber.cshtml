@@ -1,0 +1,18 @@
+﻿@{
+}
+@switch (Model)
+{
+    case Szlem.Domain.PhoneNumber phoneNumber:
+         <a href="tel:@phoneNumber.ToString()">@phoneNumber.ToString()</a>
+        break;
+    default:
+        if (Model != null)
+        {
+            <a href="tel:@Model.ToString()">@Model.ToString()</a>
+        }
+        else
+        {
+            <span class="danger">brak</span>
+        }
+        break;
+}

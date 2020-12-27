@@ -1,0 +1,117 @@
+﻿@inject IAuthorizationService AuthService
+@inject Szlem.Engine.Infrastructure.MockableClock MockableClock
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Szlem.AspNetCore</title>
+
+    <environment include="Development">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+        <link rel="stylesheet" href="~/css/site.css" />
+    </environment>
+    <environment include="Production">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"
+              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
+              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
+        <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
+    </environment>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/all.min.css" integrity="sha256-UzFD2WYH2U1dQpKDjjZK72VtPeWP50NoJjd26rnAdUI=" crossorigin="anonymous" />
+    @RenderSection("Styles", required: false)
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container">
+                <a class="navbar-brand" asp-area="" asp-page="/Index">SZLEM</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                    <partial name="_LoginPartial" />
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a></li>
+                        @if ((await AuthService.AuthorizeAsync(User, Szlem.SharedKernel.AuthorizationPolicies.AdminOnly)).Succeeded)
+                        {
+                            <li class="nav-item"><a class="nav-link text-dark" asp-area="@Areas.Admin.Consts.AreaName" asp-page="@Areas.Admin.Pages.DashboardModel.Route">Administrator</a></li>
+                        }
+                        @if ((await AuthService.AuthorizeAsync(User, Szlem.SharedKernel.AuthorizationPolicies.CoordinatorsOnly)).Succeeded)
+                        {
+                            <li class="nav-item"><a class="nav-link text-dark" asp-page="@Pages.RegionalCoordinatorDashboardModel.Route">Koordynator</a></li>
+                        }
+                        @if (User.HasClaim(claim => claim.Type == Szlem.SharedKernel.ClaimTypes.Candidate))
+                        {
+                            <li class="nav-item"><a class="nav-link text-dark" asp-area="@Areas.Recruitment.Consts.AreaName" asp-page="@Areas.Recruitment.Pages.CandidateDashboardModel.Route">Kandydat</a></li>
+                        }
+                        @if ((await AuthService.AuthorizeAsync(User, Szlem.SharedKernel.AuthorizationPolicies.CanAccessSwagger)).Succeeded)
+                        {
+                            <li class="nav-item"><a class="nav-link text-dark" href="/swagger">Swagger</a></li>
+                        }
+                        @if ((await AuthService.AuthorizeAsync(User, Szlem.SharedKernel.AuthorizationPolicies.AdminOnly)).Succeeded)
+                        {
+                            <li class="nav-item"><a class="nav-link text-dark" href="/hangfire">Hangfire</a></li>
+                        }
+                        <li class="nav-item"><a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        @* sztuczny czas *@
+        @if (MockableClock.IsMocked)
+        {
+            <div class="alert alert-warning">
+                <div class="d-flex">
+                    <div class="mr-auto p-2">Ustawiono sztuczny czas: @Html.DisplayFor(model => MockableClock.DateTime)</div>
+                    @if ((await AuthService.AuthorizeAsync(User, Szlem.SharedKernel.AuthorizationPolicies.AdminOnly)).Succeeded)
+                    {
+                        <a class="btn btn-warning float-right" asp-area="@Areas.Admin.Consts.AreaName" asp-page="@Areas.Admin.Pages.DashboardModel.Route">Zmień/przywróć czas naturalny</a>
+                    }
+                </div>
+            </div>
+        }
+
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2020 - Szlem.AspNetCore - <a asp-area="" asp-page="/Privacy">Privacy</a>
+        </div>
+    </footer>
+
+    <environment include="Development">
+        @*<script crossorigin="anonymous" src="https://unpkg.com/react@16/umd/react.development.js"></script>
+        <script crossorigin="anonymous" src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>*@
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="~/js/dist/bundle.js" asp-append-version="true"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.3.1.min.js"
+                asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
+                asp-fallback-test="window.jQuery"
+                crossorigin="anonymous"
+                integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT">
+        </script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"
+                asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
+                asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal">
+        </script>
+        @*<script crossorigin="anonymous" src="https://unpkg.com/react@16/umd/react.development.js"></script>
+        <script crossorigin="anonymous" src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>*@
+        <script src="~/js/dist/bundle.js" asp-append-version="true"></script>
+    </environment>
+
+    <script crossorigin="anonymous" src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.16.0/jquery.validate.min.js"></script>
+    <script crossorigin="anonymous" src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.6/jquery.validate.unobtrusive.min.js"></script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

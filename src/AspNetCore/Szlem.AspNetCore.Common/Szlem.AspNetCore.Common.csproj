@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EventFlow.DependencyInjection" Version="0.81.4483" />
+    <PackageReference Include="EventFlow.SQLite" Version="0.81.4483" />
+    <PackageReference Include="Extensions.Hosting.AsyncInitialization" Version="1.0.0" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="9.3.0" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.7.18" />
+    <PackageReference Include="Hangfire.Core" Version="1.7.18" />
+    <PackageReference Include="Hangfire.Storage.SQLite" Version="0.2.4" />
+    <PackageReference Include="MediatR" Version="9.0.0" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.1" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="4.9.3" />
+    <PackageReference Include="Scrutor" Version="3.3.0" />
+    <PackageReference Include="sqlite-net-pcl" Version="1.7.335" />
+    <PackageReference Include="System.Data.SQLite" Version="1.0.113.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Engine\Impl\Szlem.Recruitment.Impl\Szlem.Recruitment.Impl.csproj" />
+    <ProjectReference Include="..\..\Engine\Szlem.Engine\Szlem.Engine.csproj" />
+    <ProjectReference Include="..\..\Engine\Szlem.Recruitment\Szlem.Recruitment.csproj" />
+    <ProjectReference Include="..\..\SchoolManagement\Szlem.SchoolManagement.Impl\Szlem.SchoolManagement.Impl.csproj" />
+    <ProjectReference Include="..\..\SchoolManagement\Szlem.SchoolManagement\Szlem.SchoolManagement.csproj" />
+    <ProjectReference Include="..\..\Szlem.DependencyInjection.AspNetCore\Szlem.DependencyInjection.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\Szlem.Persistence.EF\Szlem.Persistence.EF.csproj" />
+  </ItemGroup>
+
+</Project>

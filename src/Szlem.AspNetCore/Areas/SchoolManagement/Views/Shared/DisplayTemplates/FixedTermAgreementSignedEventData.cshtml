@@ -1,0 +1,22 @@
+﻿@model Szlem.SchoolManagement.GetDetails.FixedTermAgreementSignedEventData
+@using Szlem.AspNetCore.Views
+
+<div class="card border-success">
+    <div class="card-header alert-success"><i class="fas fa-file-contract"></i> Podpisano umowę o współpracę na czas określony</div>
+    <div class="card-body">
+        <h6 class="card-subtitle mb-2 text-muted">@Html.DisplayFor(model => model.DateTime.LocalDateTime)</h6>
+        <div class="card-text">
+            <dl class="row">
+                @Html.DlFullRow(model => model.RecordingUser)
+                @Html.DlFullRow(model => model.AgreementEndDate)
+                @Html.DlFullRowOrEmptyValue(model => model.AdditionalNotes, "brak")
+            </dl>
+            <form method="get">
+                <input name="handler" type="hidden" value="@Szlem.AspNetCore.Areas.SchoolManagement.Pages.DetailsModel.GetScannedAgreementHandlerName" />
+                <input name="schoolId" type="hidden" value="@ViewData["schoolId"]" />
+                <input name="agreementId" type="hidden" value="@Model.AgreementId" />
+                <input class="btn btn-success" type="submit" value="Pokaż skan dokumentu" />
+            </form>
+        </div>
+    </div>
+</div>

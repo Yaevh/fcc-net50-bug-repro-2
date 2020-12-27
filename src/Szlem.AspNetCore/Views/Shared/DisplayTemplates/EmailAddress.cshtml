@@ -1,0 +1,17 @@
+﻿
+@switch (Model)
+{
+    case Szlem.Domain.EmailAddress email:
+        <a href="mailto:@email.ToString()">@email.ToString()</a>
+        break;
+    default:
+        if (Model != null)
+        {
+            <a href="mailto:@Model.ToString()">@Model.ToString()</a>
+        }
+        else
+        {
+            <span class="danger">brak</span>
+        }
+        break;
+}

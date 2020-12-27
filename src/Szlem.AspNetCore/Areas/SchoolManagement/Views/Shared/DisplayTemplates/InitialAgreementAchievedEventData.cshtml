@@ -1,0 +1,16 @@
+﻿@model Szlem.SchoolManagement.GetDetails.InitialAgreementAchievedEventData
+@using Szlem.AspNetCore.Views
+
+<div class="card border-info">
+    <div class="card-header alert-info"><i class="far fa-thumbs-up"></i> Szkoła wyraziła wstępną zgodę na prowadzenie zajęć</div>
+    <div class="card-body">
+        <h6 class="card-subtitle mb-2 text-muted">@Html.DisplayFor(model => model.DateTime.LocalDateTime)</h6>
+        <div class="card-text">
+            <dl class="row">
+                @Html.DlFullRow(model => model.RecordingUser)
+                @Html.DlFullRow(model => model.AgreeingPersonName)
+                @Html.DlFullRowOrEmptyValue(model => model.AdditionalNotes, "brak")
+            </dl>
+        </div>
+    </div>
+</div>

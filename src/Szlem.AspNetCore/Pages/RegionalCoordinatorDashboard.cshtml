@@ -1,0 +1,59 @@
+﻿@page
+@model RegionalCoordinatorDashboardModel
+@{
+}
+
+@if (Model.CurrentCampaign.HasValue)
+{
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title"><i class="fas fa-info-circle"></i> Trwa kampania rekrutacyjna <a asp-area="@Areas.Recruitment.Consts.AreaName" asp-page="@Areas.Recruitment.Pages.DetailsModel.Route" asp-route-id="@Model.CurrentCampaign.Value.ID">@Model.CurrentCampaign.Value.Name</a></h5>
+            <h6 class="card-subtitle mb-2 text-muted">@Model.CurrentCampaign.Value.StartDateTime.Date - @Model.CurrentCampaign.Value.EndDateTime.Date</h6>
+            @if (Model.CurrentCampaign.Value.IsRecruitmentFormOpen)
+            {
+                <a asp-area="@Areas.Recruitment.Consts.AreaName" asp-page="@Areas.Recruitment.Pages.RecruitmentFormModel.Route" asp-route-campaignId="@Model.CurrentCampaign.Value.ID" class="btn btn-primary">
+                    Formularz rekrutacyjny
+                </a>
+            }
+        </div>
+    </div>
+
+    <hr />
+}
+
+<div>
+    <div class="card-group">
+        <div class="card">
+            <div class="card-body">
+                <a asp-area="@Areas.Editions.Consts.AreaName" asp-page="@Areas.Editions.Pages.IndexModel.Route">
+                    <h5 class="card-title"><i class="far fa-calendar-alt"></i> Edycje</h5>
+                </a>
+                <p class="card-text">Lata szkolne i kampanie rekrutacyjne</p>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <a asp-area="@Areas.Recruitment.Consts.AreaName" asp-page="@Areas.Recruitment.Pages.Enrollments.IndexModel.Route">
+                    <h5 class="card-title"><i class="far fa-hand-paper"></i> Kandydaci</h5>
+                </a>
+                <p class="card-text">Zgłoszenia kandydatów na prowadzących</p>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <a asp-area="@Areas.Recruitment.Consts.AreaName" asp-page="@Areas.Recruitment.Pages.Trainings.IndexModel.Route">
+                    <h5 class="card-title"><i class="fas fa-chalkboard-teacher"></i> Twoje szkolenia</h5>
+                </a>
+                <p class="card-text">Szkolenia dla prowadzących, które prowadziłeś lub będziesz prowadzić</p>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <a asp-area="@Areas.SchoolManagement.Consts.AreaName" asp-page="@Areas.SchoolManagement.Pages.IndexModel.Route">
+                    <h5 class="card-title"><i class="fas fa-school"></i> Szkoły</h5>
+                </a>
+                <p class="card-text">Lista szkół biorących udział w projekcie</p>
+            </div>
+        </div>
+    </div>
+</div>

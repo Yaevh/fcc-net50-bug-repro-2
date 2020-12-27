@@ -1,0 +1,1 @@
+Szlem.AspNetCore.exe --ENVIRONMENT=Development

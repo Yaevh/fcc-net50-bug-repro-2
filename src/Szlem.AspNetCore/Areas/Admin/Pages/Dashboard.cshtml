@@ -1,0 +1,43 @@
+﻿@page
+@model DashboardModel
+@{
+}
+
+<div>
+    <h2>Co chcesz zrobić?</h2>
+
+    <ul>
+        <li><a asp-area="@Admin.Consts.AreaName" asp-page="@UserManagement.Pages.IndexModel.Route">Zarządzać użytkownikami</a></li>
+        <li><a asp-area="@Editions.Consts.AreaName" asp-page="@Areas.Editions.Pages.IndexModel.Route">Zarządzać edycjami</a></li>
+        <li><a asp-area="@Recruitment.Consts.AreaName" asp-page="@Recruitment.Pages.Enrollments.IndexModel.Route">Przeglądać zgłoszenia</a></li>
+        <li><a asp-area="@Admin.Consts.AreaName" asp-page="@Admin.Pages.EventsManagementModel.Route">Zarządzać zdarzeniami</a></li>
+    </ul>
+</div>
+
+<div>
+    <p>kultura serwera: @System.Globalization.CultureInfo.CurrentCulture - @System.Globalization.CultureInfo.CurrentCulture.NativeName</p>
+    <p>kultura Twojej przeglądarki: @System.Globalization.CultureInfo.CurrentUICulture - @System.Globalization.CultureInfo.CurrentUICulture.NativeName</p>
+</div>
+
+<hr />
+
+<div class="card border-warning">
+    <div class="card-header bg-warning">
+        Sztuczny czas
+    </div>
+    <div class="card-body">
+        <h6 class="card-subtitle mb-2 text-muted">Obecny czas: @Html.DisplayFor(model => model.CurrentDateTime) @if (Model.IsTimeMocked) { <strong>(czas sztuczny)</strong> } else { <strong>(czas naturalny)</strong> }</h6>
+        <form class="card-text" asp-page-handler="SetClock">
+            <div class="form-group">
+                <input asp-for="MockDate" type="date" class="form-control" />
+            </div>
+            <input type="submit" class="btn btn-warning" value="Ustaw sztuczny czas" />
+        </form>
+        @if (Model.IsTimeMocked)
+        {
+            <form asp-page-handler="ClearClock">
+                <input type="submit" class="btn btn-primary" value="Przywróć czas naturalny" />
+            </form>
+        }
+    </div>
+</div>

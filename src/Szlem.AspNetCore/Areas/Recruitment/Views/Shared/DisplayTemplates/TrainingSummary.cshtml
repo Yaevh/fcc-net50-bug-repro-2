@@ -1,0 +1,8 @@
+﻿@model Szlem.Recruitment.Trainings.TrainingSummary
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<a asp-page="@Szlem.AspNetCore.Areas.Recruitment.Pages.Trainings.DetailsModel.Route" asp-route-trainingId="@Model.ID">
+    @Html.DisplayFor(model => model.StartDateTime.LocalDateTime.Date)
+    @Html.DisplayFor(model => model.StartDateTime.TimeOfDay)-@Html.DisplayFor(model => model.EndDateTime.TimeOfDay);
+    @Model.City, @Model.Address (prowadzi @Model.CoordinatorName)
+</a>

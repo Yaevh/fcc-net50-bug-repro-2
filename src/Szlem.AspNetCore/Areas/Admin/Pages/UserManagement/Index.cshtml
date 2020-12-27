@@ -1,0 +1,45 @@
+﻿@page
+@model IndexModel
+
+@inject UserManager<ApplicationUser> UserManager;
+
+@{
+    ViewData["Title"] = "Users";
+}
+
+<h2>Users</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.Users[0].FullName)</th>
+            <th>@Html.DisplayNameFor(model => model.Users[0].Email)</th>
+            <th>@Html.DisplayNameFor(model => model.Users[0].Roles)</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Users)
+        {
+            <tr>
+                <td>
+                    <a asp-page="@DetailsModel.Route" asp-route-userId="@item.ID">
+                        @Html.DisplayFor(modelItem => item.FullName)
+                    </a>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Email)
+                </td>
+                <td>
+                    @string.Join(", ", item.Roles)
+                </td>
+                <td>
+                    @if (item.CanShowDetails)
+                    {
+                        <a asp-page="@DetailsModel.Route" asp-route-userId="@item.ID"><i class="fas fa-edit"></i> Details</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

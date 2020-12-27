@@ -1,0 +1,226 @@
+﻿@page "{id}"
+@model DetailsModel
+
+@using Szlem.AspNetCore;
+@using X.PagedList.Mvc.Core;
+
+@{
+    ViewData["Title"] = $"Kampania rekrutacyjna {Model.Campaign}";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.1.2/css/tempusdominus-bootstrap-4.min.css" integrity="sha256-XPTBwC3SBoWHSmKasAk01c08M6sIA5gF5+sRxqak2Qs=" crossorigin="anonymous" />
+}
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js" integrity="sha256-4iQZ6BVL4qNKlQ27TExEhBN1HFPvAvAMbFavKKosSWQ=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/locale/pl.js" integrity="sha256-prSi7A1V9ZxDIIGoYopovpFgGHQodz6JVZu5Aad7o8s=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.1.2/js/tempusdominus-bootstrap-4.min.js" integrity="sha256-z0oKYg6xiLq3yJGsp/LsY9XykbweQlHl42jHv2XTBz4=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        $.fn.datetimepicker.Constructor.Default = $.extend({}, $.fn.datetimepicker.Constructor.Default, {
+            locale: "pl",
+            icons: {
+                time: 'fas fa-clock',
+                date: 'fa fa-calendar',
+                up: 'fa fa-arrow-up',
+                down: 'fa fa-arrow-down',
+                previous: 'fa fa-chevron-left',
+                next: 'fa fa-chevron-right',
+                today: 'fa fa-calendar-check-o',
+                clear: 'fa fa-delete',
+                close: 'fa fa-times'
+            }
+        });
+    </script>
+}
+
+@functions {
+
+}
+
+<h2>Kampania rekrutacyjna <strong>@Model.Campaign.Name</strong></h2>
+<h5>@Html.DisplayFor(model => model.Campaign.StartDateTime.LocalDateTime) - @Html.DisplayFor(model => model.Campaign.EndDateTime.LocalDateTime)</h5>
+
+<div class="card">
+    <div class="card-body">
+        <h4 class="card-title">Zaplanowane szkolenia</h4>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Campaign.Trainings.First().City)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Campaign.Trainings.First().Address)
+                    </th>
+                    <th>
+                        Data i czas
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Campaign.Trainings.First().CoordinatorName)
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Campaign.Trainings)
+                {
+                    <tr>
+                        <td>
+                            <a asp-page="@Trainings.DetailsModel.Route" asp-route-trainingId="@item.ID">@Html.DisplayFor(modelItem => item.City)</a>
+                        </td>
+                        <td>
+                            <a asp-page="@Trainings.DetailsModel.Route" asp-route-trainingId="@item.ID">@Html.DisplayFor(modelItem => item.Address)</a>
+                        </td>
+                        <td>
+                            <a asp-page="@Trainings.DetailsModel.Route" asp-route-trainingId="@item.ID">@Html.DisplayFor(model => item.StartDateTime.Date) @Html.DisplayFor(model => item.StartDateTime.TimeOfDay)-@Html.DisplayFor(model => item.EndDateTime.TimeOfDay)</a>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.CoordinatorName)
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<hr />
+
+<div class="card">
+    <div class="card-body">
+        <h4 class="card-title">Zgłoszenia w tej kampanii</h4>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm alert alert-success">Kandydat zdobył uprawnienia prowadzącego</div>
+                <div class="col-sm alert alert-danger">Kandydat zrezygnował</div>
+            </div>
+        </div>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Submissions.First().FullName)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Submissions.First().Email)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Submissions.First().PhoneNumber)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Submissions.First().Region)
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Submissions)
+                {
+                    <tr class="@(item.HasLecturerRights ? "table-success" : string.Empty) @(item.HasResignedTemporarily ? "table-warning" : string.Empty) @(item.HasResignedPermanently ? "table-danger" : string.Empty)">
+                        <td>
+                            <a asp-page="@Enrollments.DetailsModel.Route" asp-route-enrollmentID="@item.Id">@Html.DisplayFor(modelItem => item.FullName)</a>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Email)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.PhoneNumber)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Region)
+                        </td>
+                        <td>
+                            @if (item.IsCurrentSubmission)
+                            {
+                                <span title="nowe zgłoszenie" class="text-success"><i class="fas fa-clock"></i></span>
+                            }
+                            @if (item.IsOldSubmission)
+                            {
+                                <span title="stare zgłoszenie" class="text-muted"><i class="fa fa-clock"></i></span>
+                            }
+                            @if (item.HasLecturerRights)
+                            {
+                                <span title="posiada uprawnienia prowadzącego" class="text-success"><i class="fa fa-school"></i></span>
+                            }
+                            @if (item.HasResignedPermanently)
+                            {
+                                <span title="zrezygnował na stałe" class="text-danger"><i class="fa fa-ban"></i></span>
+                            }
+                            @if (item.HasResignedTemporarily)
+                            {
+                                @if (item.ResumeDate.HasValue)
+                                {
+                                    <span title="zrezygnował tymczasowo (do @item.ResumeDate)" class="text-muted"><i class="fa fa-ban"></i></span>
+                                }
+                                else
+                                {
+                                    <span title="zrezygnował tymczasowo" class="text-muted"><i class="fa fa-ban"></i></span>
+                                }
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @Html.PagedListPager(
+            Model.Submissions,
+            page => Url.Page(
+                DetailsModel.Route,
+                new { submissionsPageNo = page }),
+            new X.PagedList.Mvc.Core.Common.PagedListRenderOptions
+            {
+                LiElementClasses = new string[] { "page-item" },
+                PageClasses = new string[] { "page-link" }
+            })
+    </div>
+</div>
+
+@if (Model.Campaign.CanScheduleTraining)
+{
+    <hr/>
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title">Zaplanuj szkolenie</h4>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <form method="post" asp-page-handler="ScheduleTraining">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <input asp-for="ScheduleTrainingCommand.CampaignID" value="@Model.Campaign.ID" type="hidden" />
+                        <div class="form-group">
+                            <label asp-for="ScheduleTrainingCommand.City" class="control-label"></label>
+                            <input asp-for="ScheduleTrainingCommand.City" class="form-control" />
+                            <span asp-validation-for="ScheduleTrainingCommand.City" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="ScheduleTrainingCommand.Address" class="control-label"></label>
+                            <input asp-for="ScheduleTrainingCommand.Address" class="form-control" />
+                            <span asp-validation-for="ScheduleTrainingCommand.Address" class="text-danger"></span>
+                        </div>
+
+                        @Html.EditorFor(model => model.ScheduleTrainingCommand.StartDateTime)
+                        @Html.EditorFor(model => model.ScheduleTrainingCommand.EndDateTime)
+
+                        <div class="form-group">
+                            <label asp-for="ScheduleTrainingCommand.Notes" class="control-label"></label>
+                            <textarea asp-for="ScheduleTrainingCommand.Notes" class="form-control"></textarea>
+                            <span asp-validation-for="ScheduleTrainingCommand.Notes" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <input type="submit" value="Schedule Training" class="btn btn-primary" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (Model.Campaign.IsRecruitmentFormOpen)
+{
+    <a asp-page="@RecruitmentFormModel.PageName" asp-route-campaignID="@Model.Campaign.ID" class="btn btn-primary btn-block">Wypełnij formularz rekrutacyjny</a>
+}
